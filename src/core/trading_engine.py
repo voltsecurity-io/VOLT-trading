@@ -78,19 +78,22 @@ class TradingEngine:
         self.running = True
         self.logger.info("Starting Trading Engine...")
 
-        try:
-            await self._trading_loop()
-        except asyncio.CancelledError:
-            self.logger.info("Trading engine task cancelled")
-        except Exception as e:
-            self.logger.error(f"Trading engine error: {e}")
-        finally:
-            self.running = False
+        # Start trading loop as background task
+        self._trading_task = asyncio.create_task(self._trading_loop())
+        self.logger.info("✅ Trading loop started as background task")
 
     async def stop(self):
         """Stop the trading engine"""
         self.running = False
         self.logger.info("Stopping Trading Engine...")
+
+        # Cancel trading task
+        if hasattr(self, '_trading_task') and not self._trading_task.done():
+            self._trading_task.cancel()
+            try:
+                await self._trading_task
+            except asyncio.CancelledError:
+                pass
 
         # Save state before stopping
         self._save_state()
@@ -112,6 +115,8 @@ class TradingEngine:
             try:
                 self._last_heartbeat = datetime.now()
                 self._loop_count += 1
+                
+                self.logger.info(f"🔄 Trading loop #{self._loop_count} started")
 
                 # Get market data
                 market_data = await self._get_market_data()
@@ -119,6 +124,8 @@ class TradingEngine:
                 if market_data is not None:
                     # Generate trading signals
                     signals = await self.strategy.generate_signals(market_data, self.positions)
+                    
+                    self.logger.info(f"📊 Generated {len(signals)} signals")
 
                     # Risk assessment
                     for signal in signals:
@@ -140,6 +147,7 @@ class TradingEngine:
                 
                 # Phase 0: Update VIX data every 10 loops (~50 minutes)
                 if self._loop_count % 10 == 0:
+                    self.logger.info("📊 Updating VIX data...")
                     await self.strategy.update_vix_data()
 
                 # Reset error counter on success
@@ -152,13 +160,15 @@ class TradingEngine:
                 # Log heartbeat every 12 loops (~1h on 5m timeframe)
                 if self._loop_count % 12 == 0:
                     self.logger.info(
-                        f"Heartbeat: loop #{self._loop_count}, "
+                        f"💓 Heartbeat: loop #{self._loop_count}, "
                         f"positions: {len(self.positions)}, "
                         f"errors: {self._consecutive_errors}"
                     )
 
                 # Sleep before next iteration
-                await asyncio.sleep(self._get_sleep_interval())
+                sleep_time = self._get_sleep_interval()
+                self.logger.debug(f"😴 Sleeping {sleep_time}s until next loop...")
+                await asyncio.sleep(sleep_time)
 
             except asyncio.CancelledError:
                 raise  # Let cancellation propagate

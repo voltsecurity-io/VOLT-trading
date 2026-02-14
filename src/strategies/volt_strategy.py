@@ -74,6 +74,7 @@ class VOLTStrategy:
     ) -> List[Dict[str, Any]]:
         """Generate trading signals from market data"""
         signals = []
+        positions = positions or {}  # Ensure we have positions dict
 
         for symbol, df in market_data.items():
             try:
@@ -81,12 +82,12 @@ class VOLTStrategy:
                 df_with_indicators = self._calculate_indicators(df)
 
                 # Generate signal for this symbol
-                signal = self._analyze_symbol(symbol, df_with_indicators)
+                signal = self._analyze_symbol(symbol, df_with_indicators, positions)
 
                 if signal:
                     # Phase 1: Validate with agent consensus if enabled
                     if self.use_agents and self.agent_network:
-                        signal = await self._validate_with_agents(signal, df_with_indicators, positions or {})
+                        signal = await self._validate_with_agents(signal, df_with_indicators, positions)
                     
                     if signal:  # Only add if agents didn't reject
                         signals.append(signal)
@@ -136,7 +137,7 @@ class VOLTStrategy:
         return df
 
     def _analyze_symbol(
-        self, symbol: str, df: pd.DataFrame
+        self, symbol: str, df: pd.DataFrame, positions: Dict = None
     ) -> Optional[Dict[str, Any]]:
         """Analyze symbol and generate signal"""
         if len(df) < 50:
@@ -144,6 +145,7 @@ class VOLTStrategy:
 
         latest = df.iloc[-1]
         previous = df.iloc[-2]
+        positions = positions or {}
 
         # Buy conditions - scored individually (no longer requires ALL to be true)
         buy_score = 0
@@ -166,20 +168,24 @@ class VOLTStrategy:
             buy_score += 0.5  # Trend confirmation (bonus, not required)
 
         # Sell conditions - scored individually
+        # BUT ONLY if we have a position to sell!
         sell_score = 0
         sell_total = 5
-        if latest["rsi"] > self.rsi_overbought:
-            sell_score += 1.5
-        elif latest["rsi"] > 60:
-            sell_score += 0.5
-        if latest["macd"] < latest["macd_signal"]:
-            sell_score += 1.0
-        if previous["macd"] >= previous["macd_signal"]:  # Fresh crossover
-            sell_score += 1.0
-        if latest["close"] > latest["bb_upper"]:
-            sell_score += 1.0
-        if latest["volume_ratio"] > 1.2:
-            sell_score += 0.5
+        has_position = symbol in positions and positions[symbol].get('amount', 0) > 0
+        
+        if has_position:
+            if latest["rsi"] > self.rsi_overbought:
+                sell_score += 1.5
+            elif latest["rsi"] > 60:
+                sell_score += 0.5
+            if latest["macd"] < latest["macd_signal"]:
+                sell_score += 1.0
+            if previous["macd"] >= previous["macd_signal"]:  # Fresh crossover
+                sell_score += 1.0
+            if latest["close"] > latest["bb_upper"]:
+                sell_score += 1.0
+            if latest["volume_ratio"] > 1.2:
+                sell_score += 0.5
 
         # Determine signal - minimum 3.0 score required
         signal_strength = 0
@@ -189,7 +195,7 @@ class VOLTStrategy:
             signal_action = "buy"
             signal_strength = min(buy_score / buy_total, 1.0)
 
-        elif sell_score >= 3.0 and sell_score > buy_score:
+        elif sell_score >= 3.0 and sell_score > buy_score and has_position:
             signal_action = "sell"
             signal_strength = min(sell_score / sell_total, 1.0)
 

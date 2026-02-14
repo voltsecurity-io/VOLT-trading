@@ -6,7 +6,7 @@ Provides critical volatility metrics for VOLT trading strategies
 import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
-import aiohttp
+import requests
 from src.utils.logger import get_logger
 
 
@@ -264,19 +264,25 @@ class VolatilityCollector:
     # Helper methods
     
     async def _fetch_yahoo_vix(self) -> float:
-        """Fetch current VIX from Yahoo Finance"""
+        """Fetch current VIX from Yahoo Finance using requests"""
         try:
+            import requests
             url = "https://query1.finance.yahoo.com/v8/finance/chart/^VIX"
             
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, timeout=10) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        vix = data['chart']['result'][0]['meta']['regularMarketPrice']
-                        self.logger.info(f"📊 VIX fetched: {vix:.2f}")
-                        return vix
-                    else:
-                        raise Exception(f"HTTP {response.status}")
+            # Use sync requests in executor (avoid aiohttp Python 3.14 bug)
+            loop = asyncio.get_running_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: requests.get(url, timeout=5)
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                vix = data['chart']['result'][0]['meta']['regularMarketPrice']
+                self.logger.info(f"📊 VIX fetched: {vix:.2f}")
+                return vix
+            else:
+                raise Exception(f"HTTP {response.status_code}")
                         
         except Exception as e:
             self.logger.warning(f"⚠️ Yahoo VIX fetch failed: {e}, using fallback")
