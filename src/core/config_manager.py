@@ -15,7 +15,11 @@ class ConfigManager:
 
     def __init__(self, config_dir: str = "config"):
         self.config_dir = Path(config_dir)
-        self.config_dir.mkdir(exist_ok=True)
+        # Only create if it's actually a directory path, not a file
+        if not self.config_dir.suffix:  # No file extension
+            self.config_dir.mkdir(exist_ok=True)
+        else:  # It's a file path
+            self.config_dir = self.config_dir.parent
         self.config = {}
         self.load_default_config()
         self.load_config()

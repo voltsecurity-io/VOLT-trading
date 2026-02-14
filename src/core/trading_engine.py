@@ -118,7 +118,7 @@ class TradingEngine:
 
                 if market_data is not None:
                     # Generate trading signals
-                    signals = await self.strategy.generate_signals(market_data)
+                    signals = await self.strategy.generate_signals(market_data, self.positions)
 
                     # Risk assessment
                     for signal in signals:

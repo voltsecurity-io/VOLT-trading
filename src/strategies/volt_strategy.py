@@ -12,6 +12,7 @@ from datetime import datetime
 from src.core.config_manager import ConfigManager
 from src.utils.logger import get_logger
 from src.collectors.volatility_collector import VolatilityCollector
+from src.ollama_agents.agent_network import AgentNetwork
 
 
 class VOLTStrategy:
@@ -43,6 +44,17 @@ class VOLTStrategy:
         self.volatility_collector = VolatilityCollector()
         self.current_vix = 20.0  # Default
         self.vix_regime = "NORMAL"
+        
+        # Phase 1: Ollama multi-agent system (optional)
+        self.use_agents = self.config.get("use_ollama_agents", True)
+        self.agent_network = None
+        if self.use_agents:
+            try:
+                self.agent_network = AgentNetwork()
+                self.logger.info("🤖 Ollama multi-agent system enabled")
+            except Exception as e:
+                self.logger.warning(f"⚠️  Failed to init agents, continuing without: {e}")
+                self.use_agents = False
 
     async def initialize(self):
         """Initialize strategy components"""
@@ -58,7 +70,7 @@ class VOLTStrategy:
         self.logger.info("✅ VOLT Strategy initialized")
 
     async def generate_signals(
-        self, market_data: Dict[str, pd.DataFrame]
+        self, market_data: Dict[str, pd.DataFrame], positions: Dict = None
     ) -> List[Dict[str, Any]]:
         """Generate trading signals from market data"""
         signals = []
@@ -72,7 +84,12 @@ class VOLTStrategy:
                 signal = self._analyze_symbol(symbol, df_with_indicators)
 
                 if signal:
-                    signals.append(signal)
+                    # Phase 1: Validate with agent consensus if enabled
+                    if self.use_agents and self.agent_network:
+                        signal = await self._validate_with_agents(signal, df_with_indicators, positions or {})
+                    
+                    if signal:  # Only add if agents didn't reject
+                        signals.append(signal)
 
             except Exception as e:
                 self.logger.error(f"❌ Error analyzing {symbol}: {e}")
@@ -365,6 +382,95 @@ class VOLTStrategy:
             
         except Exception as e:
             self.logger.warning(f"⚠️ Failed to update VIX: {e}, using cached value")
+    
+    async def _validate_with_agents(
+        self, 
+        signal: Dict[str, Any], 
+        df: pd.DataFrame,
+        positions: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Phase 1: Validate signal with multi-agent consensus
+        
+        Args:
+            signal: Trading signal from technical analysis
+            df: Market data with indicators
+            positions: Current portfolio positions
+            
+        Returns:
+            Enhanced signal with agent consensus, or None if rejected
+        """
+        try:
+            latest = df.iloc[-1]
+            
+            # Prepare market data for agents
+            market_data = {
+                "symbol": signal["symbol"],
+                "price": float(latest["close"]),
+                "rsi": float(latest["rsi"]),
+                "macd": float(latest["macd"]),
+                "macd_signal": float(latest["macd_signal"]),
+                "volume_ratio": float(latest["volume_ratio"]),
+                "bb_position": "above" if latest["close"] > latest["bb_upper"] else 
+                              "below" if latest["close"] < latest["bb_lower"] else "middle",
+                "action": signal["action"],
+                "position_size": signal["position_size"],
+                "max_position_size": self.max_position_size,
+                "correlation": 0.5  # Could calculate from multi-symbol data
+            }
+            
+            # Get agent consensus
+            agent_decision = await self.agent_network.propose_trade(
+                market_data=market_data,
+                portfolio=positions
+            )
+            
+            # Extract consensus
+            consensus_action = agent_decision.get("decision", "HOLD")
+            confidence = agent_decision.get("confidence", 0.0)
+            consensus_type = agent_decision.get("consensus_type", "UNKNOWN")
+            
+            self.logger.info(
+                f"🤖 Agent consensus for {signal['symbol']}: {consensus_type} "
+                f"({consensus_action}, confidence: {confidence:.0%})"
+            )
+            
+            # Decision logic
+            if consensus_action == "HOLD" or consensus_type == "REJECTED_BY_RISK":
+                self.logger.info(f"   ❌ Signal rejected by agents: {agent_decision.get('reasoning', 'N/A')}")
+                return None
+            
+            # If agents suggest opposite action, reject
+            if (signal["action"] == "buy" and consensus_action == "SELL") or \
+               (signal["action"] == "sell" and consensus_action == "BUY"):
+                self.logger.info(f"   ⚠️ Agent action conflicts with signal, rejecting")
+                return None
+            
+            # Enhance signal with agent data
+            signal["agent_consensus"] = {
+                "decision": consensus_action,
+                "confidence": confidence,
+                "type": consensus_type,
+                "votes": agent_decision.get("agent_votes", {}),
+                "reasoning": agent_decision.get("reasoning", "")
+            }
+            
+            # Adjust confidence based on agent consensus
+            # Blend technical strength with agent confidence (60/40 weight)
+            original_confidence = signal["confidence"]
+            blended_confidence = (original_confidence * 0.6) + (confidence * 0.4)
+            signal["confidence"] = blended_confidence
+            
+            self.logger.info(
+                f"   ✅ Signal enhanced: confidence {original_confidence:.0%} → {blended_confidence:.0%}"
+            )
+            
+            return signal
+            
+        except Exception as e:
+            self.logger.error(f"⚠️ Agent validation failed: {e}, using signal as-is")
+            return signal  # Fallback: use original signal if agents fail
+
 
     async def _load_lstm_model(self):
         """Load LSTM model for price prediction"""
