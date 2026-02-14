@@ -17,7 +17,6 @@ logs/*.log
 reports/*.json
 
 # IDE
-.vscode/
 .idea/
 
 # OS

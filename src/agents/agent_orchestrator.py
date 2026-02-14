@@ -4,7 +4,7 @@ Manages multiple AI trading agents
 """
 
 import asyncio
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 
 from src.core.config_manager import ConfigManager
@@ -16,14 +16,23 @@ from src.agents.simple_agents import (
     ExecutionAgent,
     MonitoringAgent,
 )
+from src.exchanges.exchange_factory import BaseExchange
+from src.strategies.volt_strategy import VOLTStrategy
 
 
 class AgentOrchestrator:
     """Orchestrates all trading agents"""
 
-    def __init__(self, config_manager: ConfigManager):
+    def __init__(
+        self,
+        config_manager: ConfigManager,
+        exchange: Optional[BaseExchange] = None,
+        strategy: Optional[VOLTStrategy] = None,
+    ):
         self.config_manager = config_manager
         self.logger = get_logger(__name__)
+        self.exchange = exchange
+        self.strategy = strategy
 
         # Agents
         self.agents = {}
@@ -33,13 +42,15 @@ class AgentOrchestrator:
         """Initialize all agents"""
         self.logger.info("🤖 Initializing Agent Orchestrator...")
 
-        # Initialize individual agents
+        # Initialize individual agents with dependencies
         self.agents = {
-            "market_data": MarketDataAgent(self.config_manager),
-            "technical": TechnicalAnalysisAgent(self.config_manager),
+            "market_data": MarketDataAgent(self.config_manager, self.exchange),
+            "technical": TechnicalAnalysisAgent(
+                self.config_manager, self.strategy
+            ),
             "sentiment": SentimentAnalysisAgent(self.config_manager),
-            "execution": ExecutionAgent(self.config_manager),
-            "monitoring": MonitoringAgent(self.config_manager),
+            "execution": ExecutionAgent(self.config_manager, self.exchange),
+            "monitoring": MonitoringAgent(self.config_manager, self.exchange),
         }
 
         # Initialize each agent
@@ -133,6 +144,14 @@ class AgentOrchestrator:
             coordination_data["error"] = str(e)
 
         return coordination_data
+
+    async def sync_market_data_to_technical(self, market_data: Dict):
+        """Sync market data from trading engine to technical agent"""
+        try:
+            if "technical" in self.agents and market_data:
+                self.agents["technical"].set_market_data(market_data)
+        except Exception as e:
+            self.logger.error(f"❌ Error syncing market data to technical agent: {e}")
 
     def _calculate_coordination_score(
         self, market_data: Dict, technical_signals: Dict, sentiment: Dict

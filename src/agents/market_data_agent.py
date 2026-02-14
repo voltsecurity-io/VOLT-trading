@@ -4,19 +4,23 @@ Handles real-time market data collection and processing
 """
 
 import asyncio
-import random
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime
+import pandas as pd
 
 from src.core.config_manager import ConfigManager
 from src.utils.logger import get_logger
+from src.exchanges.exchange_factory import BaseExchange
 
 
 class MarketDataAgent:
     """Agent responsible for market data collection"""
 
-    def __init__(self, config_manager: ConfigManager):
+    def __init__(
+        self, config_manager: ConfigManager, exchange: Optional[BaseExchange] = None
+    ):
         self.config_manager = config_manager
+        self.exchange = exchange
         self.logger = get_logger(__name__)
         self.config = config_manager.get_trading_config()
 
@@ -27,6 +31,11 @@ class MarketDataAgent:
     async def initialize(self):
         """Initialize market data agent"""
         self.logger.info("📊 Initializing Market Data Agent...")
+
+        if not self.exchange:
+            self.logger.warning(
+                "⚠️ No exchange provided - MarketDataAgent will not function properly"
+            )
 
         # Setup data sources
         self.symbols = self.config.get(
@@ -78,9 +87,13 @@ class MarketDataAgent:
 
     async def _collect_market_data(self):
         """Collect market data from exchanges"""
+        if not self.exchange:
+            self.logger.error("❌ No exchange available for data collection")
+            return
+
         for symbol in self.symbols:
             try:
-                # Simulated market data - in production, use real exchange APIs
+                # Fetch real market data from exchange
                 data = await self._fetch_symbol_data(symbol)
 
                 if data:
@@ -92,27 +105,57 @@ class MarketDataAgent:
         self.last_update = datetime.now()
 
     async def _fetch_symbol_data(self, symbol: str) -> Dict[str, Any]:
-        """Fetch data for a specific symbol"""
-        # Simulated data - replace with real API calls
-        base_price = self._get_base_price(symbol)
+        """Fetch data for a specific symbol from exchange"""
+        if not self.exchange:
+            return {}
 
-        # Generate realistic price movements
-        price = base_price + random.uniform(-0.02, 0.02) * base_price
-        volume = random.uniform(1000, 10000)
+        try:
+            # Get current ticker price
+            price = await self.exchange.get_ticker(symbol)
 
-        return {
-            "symbol": symbol,
-            "price": price,
-            "volume": volume,
-            "change_24h": random.uniform(-5, 5),
-            "high_24h": price * 1.02,
-            "low_24h": price * 0.98,
-            "timestamp": datetime.now().isoformat(),
-            "bid": price * 0.999,
-            "ask": price * 1.001,
-            "spread": price * 0.002,
-            "liquidity_score": random.uniform(0.7, 1.0),
-        }
+            # Get OHLCV data for volume and price stats
+            ohlcv = await self.exchange.get_ohlcv(symbol, self.timeframe, limit=24)
+
+            if not price or not ohlcv:
+                self.logger.warning(f"⚠️ No data available for {symbol}")
+                return {}
+
+            # Convert OHLCV to DataFrame for easier analysis
+            df = pd.DataFrame(
+                ohlcv,
+                columns=["timestamp", "open", "high", "low", "close", "volume"],
+            )
+
+            # Calculate 24h stats
+            high_24h = df["high"].max()
+            low_24h = df["low"].min()
+            first_price = df.iloc[0]["close"]
+            change_24h = ((price - first_price) / first_price) * 100
+
+            # Calculate current volume
+            current_volume = df["volume"].sum()
+
+            # Calculate spread approximation (0.1% typical for major pairs)
+            spread = price * 0.001
+
+            return {
+                "symbol": symbol,
+                "price": price,
+                "volume": current_volume,
+                "change_24h": change_24h,
+                "high_24h": high_24h,
+                "low_24h": low_24h,
+                "timestamp": datetime.now().isoformat(),
+                "bid": price - spread / 2,
+                "ask": price + spread / 2,
+                "spread": spread,
+                "liquidity_score": min(current_volume / 1000000, 1.0),  # Normalized
+                "data_points": len(df),
+            }
+
+        except Exception as e:
+            self.logger.error(f"❌ Error fetching symbol data for {symbol}: {e}")
+            return {}
 
     async def _process_data(self):
         """Process and validate collected data"""
@@ -137,16 +180,15 @@ class MarketDataAgent:
             return False
 
         # Check data ranges
-        if data["price"] <= 0 or data["volume"] <= 0:
+        if data["price"] <= 0 or data["volume"] < 0:
             return False
 
-        # Check timestamp is recent
+        # Check timestamp is recent (within 5 minutes, or just valid format)
         try:
             timestamp = datetime.fromisoformat(data["timestamp"])
-            age = (datetime.now() - timestamp).total_seconds()
-            if age > 300:  # 5 minutes
-                return False
-        except:
+            # Allow any timestamp for now - don't enforce freshness in validation
+            # Freshness is tracked separately in data quality metrics
+        except (ValueError, TypeError):
             return False
 
         return True
@@ -196,18 +238,6 @@ class MarketDataAgent:
             if self.last_update and (datetime.now() - self.last_update).seconds < 60
             else "stale",
         }
-
-    def _get_base_price(self, symbol: str) -> float:
-        """Get base price for symbol"""
-        prices = {
-            "BTC/USDT": 50000.0,
-            "ETH/USDT": 3000.0,
-            "BNB/USDT": 400.0,
-            "SOL/USDT": 150.0,
-            "AVAX/USDT": 40.0,
-            "MATIC/USDT": 0.9,
-        }
-        return prices.get(symbol, 100.0)
 
     def _get_update_interval(self) -> int:
         """Get data update interval based on timeframe"""

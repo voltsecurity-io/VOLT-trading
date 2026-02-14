@@ -1,0 +1,54 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🚀 Start VOLT Trading (Dry-Run)",
+            "type": "shell",
+            "command": "./start_dryrun.sh",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "📊 Launch Dashboard",
+            "type": "shell",
+            "command": "./launch_dashboard.sh",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "🛑 Stop All",
+            "type": "shell",
+            "command": "python control.py stop",
+            "problemMatcher": []
+        },
+        {
+            "label": "📝 View Logs",
+            "type": "shell",
+            "command": "tail -f logs/trading.log",
+            "problemMatcher": []
+        },
+        {
+            "label": "📈 View Metrics",
+            "type": "shell",
+            "command": "cat reports/monitoring_metrics.json | python -m json.tool",
+            "problemMatcher": []
+        },
+        {
+            "label": "🧪 Run Tests",
+            "type": "shell",
+            "command": "pytest tests/ -v",
+            "problemMatcher": []
+        }
+    ]
+}

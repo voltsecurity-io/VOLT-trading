@@ -20,8 +20,8 @@ class RiskManager:
         self.logger = get_logger(__name__)
         self.risk_config = config_manager.get_risk_config()
 
-        # Risk parameters
-        self.max_position_size = self.risk_config.get("max_leverage", 1.0)
+        # Risk parameters - use trading config for position size, not leverage
+        self.max_position_size = config_manager.get("trading.max_position_size", 0.10)
         self.correlation_limit = self.risk_config.get("correlation_limit", 0.7)
         self.max_drawdown = config_manager.get("trading.max_drawdown", 0.15)
         self.volatility_adjustment = self.risk_config.get("volatility_adjustment", True)

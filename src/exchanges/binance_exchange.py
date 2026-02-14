@@ -158,6 +158,22 @@ class BinanceExchange(BaseExchange):
             self.logger.error(f"Exchange error fetching positions: {e}")
             return {}
 
+    async def get_balance(self) -> Dict[str, Any]:
+        """Fetch account balance from Binance"""
+        self._require_auth("get_balance")
+        try:
+            balance = await self.client.fetch_balance()
+            return balance.get("total", {})
+        except ccxt_async.AuthenticationError as e:
+            self.logger.error(f"Auth error fetching balance: {e}")
+            return {}
+        except ccxt_async.NetworkError as e:
+            self.logger.error(f"Network error fetching balance: {e}")
+            return {}
+        except ccxt_async.ExchangeError as e:
+            self.logger.error(f"Exchange error fetching balance: {e}")
+            return {}
+
     async def close(self):
         """Close the ccxt client and release aiohttp session"""
         if self.client:

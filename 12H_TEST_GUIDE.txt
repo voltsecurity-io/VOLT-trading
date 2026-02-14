@@ -1,0 +1,266 @@
+╔════════════════════════════════════════════════════════════════╗
+║     🚀 VOLT-TRADING 12-TIMMARS TEST - KOMPLETT GUIDE          ║
+╚════════════════════════════════════════════════════════════════╝
+
+SYSTEM: Lenovo ThinkPad X1 Nano Gen 1 (Intel Core i7)
+KAPITAL: 20,000 SEK (Binance Testnet)
+DURATION: 12 timmar
+DASHBOARD: http://localhost:8501
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 STEG-FÖR-STEG
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEG 1: Optimera ThinkPad för 24/7 drift
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  cd ~/VOLT-trading
+  ./optimize_thinkpad.sh
+
+Detta kommer att:
+  ✓ Förhindra laptop från att somna
+  ✓ Sätta CPU till performance mode
+  ✓ Stänga av Wi-Fi power saving
+  ✓ Aktivera SSD TRIM
+  ✓ Konfigurera temperatur-monitoring
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEG 2: Verifiera systemet
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚡ KRITISKT: Koppla in AC-adaptern!
+  
+  ThinkPad X1 Nano har 48Wh batteri - räcker INTE 12 timmar
+  under kontinuerlig trading.
+
+  Kontrollera:
+    • AC-adapter inkopplad
+    • Laptop på hårt underlag (bra luftflöde)
+    • Ingen blockering av ventiler
+    • Tillgång till stabil Wi-Fi/Ethernet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEG 3: Verifiera API-nycklar
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  python verify_api_keys.py
+
+  Du ska se:
+    ✅ API Key: wcWEErw9...GqGs
+    ✅ USDT Balance: $10,000.00
+    ✅ Mode: TESTNET (Sandbox)
+    🎉 ALL CHECKS PASSED!
+
+  Om det misslyckas:
+    ./setup_api_keys.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEG 4: Starta 12-timmars testet
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ./run_12h_test.sh
+
+  Detta startar automatiskt:
+    🤖 Trading Engine
+    📊 Streamlit Dashboard (http://localhost:8501)
+    🚫 Sleep Prevention
+    📝 Logging och metrics
+
+  Testet kommer att köra tills:
+    • 12 timmar passerat, ELLER
+    • Du stoppar manuellt (Ctrl+C)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEG 5: Övervaka testet
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  I webbläsare:
+    http://localhost:8501
+    
+    Du kommer att se:
+      • Live candlestick charts
+      • Portfolio P&L i SEK
+      • Öppna positioner
+      • Recent trades
+      • System health (CPU, minne, temp)
+
+  I terminal (nytt fönster):
+    ./check_test_status.sh
+
+    Visar:
+      • Tid kvar
+      • Trading metrics
+      • System health
+      • Batteri status
+      • CPU temperatur
+
+  Live logs:
+    tail -f logs/12h_test_*.log
+
+  Temperatur-monitoring (viktigt för X1 Nano!):
+    watch -n 2 'sensors | grep Package'
+
+  Önskat temperatur-intervall:
+    • Normal: 40-60°C
+    • OK: 60-75°C
+    • Varning: 75-85°C
+    • STOPP: >85°C (risk för throttling)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEG 6: Stoppa testet (om nödvändigt)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Normal stopp:
+    Ctrl+C i trading-terminalen
+
+  Eller:
+    ./stop_test.sh
+
+  Tvångsstopp (om det hänger sig):
+    kill $(pgrep -f "python.*main.py")
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 VAD HÄNDER UNDER TESTET?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Varje 5:e minut:
+
+  1. MarketDataAgent hämtar live priser från Binance
+     • BTC/USDT, ETH/USDT, BNB/USDT, SOL/USDT, AVAX/USDT
+  
+  2. TechnicalAnalysisAgent beräknar indikatorer
+     • RSI (Relative Strength Index)
+     • MACD (Moving Average Convergence Divergence)
+     • Bollinger Bands
+     • ATR (Average True Range)
+     • Volume analysis
+  
+  3. VOLTStrategy genererar trading signaler
+     • BUY signal om ALLA 4 villkor uppfylls:
+       ✓ RSI < 30 (översålt)
+       ✓ MACD bullish crossover
+       ✓ Pris under BB lower band
+       ✓ Volym spike (>1.5x average)
+     
+     • SELL signal vid motsatta villkor
+  
+  4. RiskManager validerar trade
+     • Position size max 10% av kapital
+     • Risk per trade 2.5%
+     • Max drawdown 15%
+     • Korrelations-check mellan pairs
+  
+  5. ExecutionAgent placerar order (på testnet!)
+     • Market orders
+     • Stop-loss: 5%
+     • Take-profit: 10%
+  
+  6. MonitoringAgent trackar P&L
+     • Realized P&L (stängda trades)
+     • Unrealized P&L (öppna positioner)
+     • Win rate calculation
+     • Metrics sparas till JSON
+
+Dashboard uppdateras var 10:e sekund med senaste data!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  VIKTIGT ATT VETA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  TESTNET MODE AKTIVT
+    ✅ Riktiga priser från Binance
+    ✅ Riktiga trading-signaler
+    ✅ Riktiga orders placeras
+    ❌ INGA RIKTIGA PENGAR - allt är simulerat!
+
+  Varför kanske inga trades händer?
+    • VOLT-strategin är STRIKT - kräver alla 4 villkor samtidigt
+    • Detta är BÄTTRE än att göra för många trades!
+    • Vänta tålmodigt - kvalitet över kvantitet
+    • Marknaden måste vara i rätt läge
+
+  ThinkPad X1 Nano är fanless!
+    • Övervaka temperatur noga
+    • Om >80°C, överväg att:
+      - Pausa test
+      - Förbättra luftflöde
+      - Använd cooling pad
+
+  Nätverksstabilitet är kritisk!
+    • Föredra Ethernet över Wi-Fi
+    • Håll laptop nära router om Wi-Fi används
+    • Undvik att ladda ner stora filer samtidigt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📈 RESULTAT EFTER TEST
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+När testet är klart, hitta resultat i:
+
+  reports/monitoring_metrics.json
+    - Alla trades
+    - P&L breakdown
+    - Win rate
+    - Öppna positioner
+
+  reports/test_run_metadata.json
+    - Test start/end times
+    - Total duration
+    - System info
+
+  logs/12h_test_YYYYMMDD_HHMMSS.log
+    - Fullständig logg av allt som hänt
+
+Visa snygg sammanfattning:
+  cat reports/monitoring_metrics.json | python -m json.tool
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 QUICK COMMAND REFERENCE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  # Optimera system
+  ./optimize_thinkpad.sh
+
+  # Starta test
+  ./run_12h_test.sh
+
+  # Kolla status
+  ./check_test_status.sh
+
+  # Visa dashboard
+  http://localhost:8501
+
+  # Övervaka temp
+  watch -n 2 'sensors | grep Package'
+
+  # Visa live logs
+  tail -f logs/12h_test_*.log
+
+  # Visa metrics
+  cat reports/monitoring_metrics.json | python -m json.tool
+
+  # Stoppa test
+  ./stop_test.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ LYCKA TILL MED TESTET!
+
+Öppna http://localhost:8501 och njut av att se din AI-trader i aktion! 🚀📈
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

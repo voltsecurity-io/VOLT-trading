@@ -4,40 +4,50 @@ Handles technical indicator calculations and analysis
 """
 
 import asyncio
-import random
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime
+import pandas as pd
 
 from src.core.config_manager import ConfigManager
 from src.utils.logger import get_logger
+from src.strategies.volt_strategy import VOLTStrategy
 
 
 class TechnicalAnalysisAgent:
     """Agent responsible for technical analysis"""
 
-    def __init__(self, config_manager: ConfigManager):
+    def __init__(
+        self,
+        config_manager: ConfigManager,
+        strategy: Optional[VOLTStrategy] = None,
+    ):
         self.config_manager = config_manager
+        self.strategy = strategy
         self.logger = get_logger(__name__)
 
         self.running = False
         self.technical_signals = {}
-        self.indicators = {}
+        self.market_data_cache = {}
 
     async def initialize(self):
         """Initialize technical analysis agent"""
         self.logger.info("📈 Initializing Technical Analysis Agent...")
 
-        # Setup technical indicators
-        self.indicators = {
-            "rsi": {"period": 14, "overbought": 70, "oversold": 30},
-            "macd": {"fast": 12, "slow": 26, "signal": 9},
-            "bollinger": {"period": 20, "std": 2},
-            "sma": {"periods": [20, 50, 200]},
-            "ema": {"periods": [12, 26]},
-            "volume": {"sma": 20},
-        }
+        if not self.strategy:
+            self.logger.warning(
+                "⚠️ No strategy provided - using default indicator parameters"
+            )
+            # Fallback to default parameters if no strategy
+            self.rsi_period = 14
+            self.rsi_oversold = 30
+            self.rsi_overbought = 70
+        else:
+            # Use strategy's parameters
+            self.rsi_period = self.strategy.rsi_period
+            self.rsi_oversold = self.strategy.rsi_oversold
+            self.rsi_overbought = self.strategy.rsi_overbought
 
-        self.logger.info("📊 Technical indicators configured")
+        self.logger.info("📊 Technical analysis configured")
 
     async def start(self):
         """Start technical analysis"""
@@ -76,23 +86,29 @@ class TechnicalAnalysisAgent:
             "last_update": datetime.now().isoformat(),
         }
 
+    def set_market_data(self, market_data: Dict[str, pd.DataFrame]):
+        """Set market data for analysis (called by orchestrator or trading engine)"""
+        self.market_data_cache = market_data
+
     async def _analyze_markets(self):
         """Perform technical analysis on all symbols"""
-        # Get symbols from config
-        symbols = self.config_manager.get(
-            "trading.pairs", ["BTC/USDT", "ETH/USDT", "BNB/USDT", "SOL/USDT"]
-        )
+        if not self.market_data_cache:
+            self.logger.debug("No market data available for analysis yet")
+            return
 
-        for symbol in symbols:
+        for symbol, df in self.market_data_cache.items():
             try:
-                # Generate simulated price data - in production, use real data
-                price_data = self._generate_sample_data(symbol)
-
-                # Calculate indicators
-                analysis = self._calculate_indicators(price_data)
+                # Use strategy's indicator calculation if available
+                if self.strategy:
+                    df_with_indicators = self.strategy._calculate_indicators(df)
+                else:
+                    # Fallback: basic calculation
+                    df_with_indicators = self._calculate_basic_indicators(df)
 
                 # Store analysis results
-                self.technical_signals[symbol] = analysis
+                self.technical_signals[symbol] = self._extract_indicators(
+                    df_with_indicators
+                )
 
             except Exception as e:
                 self.logger.error(f"❌ Error analyzing {symbol}: {e}")
@@ -111,178 +127,72 @@ class TechnicalAnalysisAgent:
             except Exception as e:
                 self.logger.error(f"❌ Error generating signal for {symbol}: {e}")
 
-    def _generate_sample_data(self, symbol: str, periods: int = 100) -> List[float]:
-        """Generate sample price data for testing"""
-        base_price = self._get_base_price(symbol)
-        prices = []
-        current_price = base_price
-
-        for _ in range(periods):
-            # Random walk with trend
-            change = random.uniform(-0.02, 0.02)
-            current_price *= 1 + change
-            prices.append(current_price)
-
-        return prices
-
-    def _calculate_indicators(self, prices: List[float]) -> Dict[str, Any]:
-        """Calculate technical indicators"""
-        if len(prices) < 50:
+    def _extract_indicators(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """Extract latest indicator values from DataFrame"""
+        if len(df) == 0:
             return {}
 
+        latest = df.iloc[-1]
         indicators = {}
 
-        # RSI
-        indicators["rsi"] = self._calculate_rsi(
-            prices, self.indicators["rsi"]["period"]
-        )
+        # Extract all available indicators
+        for col in df.columns:
+            if col not in ["timestamp", "open", "high", "low", "close", "volume"]:
+                try:
+                    indicators[col] = float(latest[col]) if pd.notna(latest[col]) else 0.0
+                except (ValueError, TypeError):
+                    indicators[col] = 0.0
 
-        # MACD
-        macd_data = self._calculate_macd(prices)
-        indicators.update(macd_data)
+        # Add current price
+        indicators["current_price"] = float(latest["close"])
 
-        # Bollinger Bands
-        bb_data = self._calculate_bollinger_bands(prices)
-        indicators.update(bb_data)
-
-        # Moving Averages
-        sma_data = self._calculate_sma(prices, self.indicators["sma"]["periods"])
-        indicators.update(sma_data)
-
-        # EMA
-        ema_data = self._calculate_ema(prices, self.indicators["ema"]["periods"])
-        indicators.update(ema_data)
-
-        # Price action
-        current_price = prices[-1]
-        indicators["current_price"] = current_price
-        indicators["price_change_1"] = (
-            (current_price - prices[-2]) / prices[-2] if len(prices) > 1 else 0
-        )
-        indicators["price_change_5"] = (
-            (current_price - prices[-6]) / prices[-6] if len(prices) > 5 else 0
-        )
+        # Add price changes
+        if len(df) > 1:
+            previous = df.iloc[-2]
+            indicators["price_change_1"] = (
+                (latest["close"] - previous["close"]) / previous["close"]
+            )
+        if len(df) > 5:
+            prev_5 = df.iloc[-6]
+            indicators["price_change_5"] = (
+                (latest["close"] - prev_5["close"]) / prev_5["close"]
+            )
 
         return indicators
 
-    def _calculate_rsi(self, prices: List[float], period: int) -> float:
-        """Calculate RSI indicator"""
-        if len(prices) < period + 1:
-            return 50.0
+    def _calculate_basic_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Fallback basic indicator calculation if no strategy available"""
+        df = df.copy()
 
-        gains = []
-        losses = []
+        # Basic RSI
+        delta = df["close"].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=self.rsi_period).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=self.rsi_period).mean()
+        rs = gain / loss
+        df["rsi"] = 100 - (100 / (1 + rs))
 
-        for i in range(1, len(prices)):
-            change = prices[i] - prices[i - 1]
-            if change > 0:
-                gains.append(change)
-                losses.append(0)
-            else:
-                gains.append(0)
-                losses.append(abs(change))
+        # Basic moving averages
+        df["sma_20"] = df["close"].rolling(window=20).mean()
+        df["sma_50"] = df["close"].rolling(window=50).mean()
 
-        if len(gains) < period:
-            return 50.0
+        # Basic MACD
+        ema_12 = df["close"].ewm(span=12).mean()
+        ema_26 = df["close"].ewm(span=26).mean()
+        df["macd"] = ema_12 - ema_26
+        df["macd_signal"] = df["macd"].ewm(span=9).mean()
 
-        avg_gain = sum(gains[-period:]) / period
-        avg_loss = sum(losses[-period:]) / period
+        # Bollinger Bands
+        sma_20 = df["close"].rolling(window=20).mean()
+        std_20 = df["close"].rolling(window=20).std()
+        df["bb_upper"] = sma_20 + (std_20 * 2)
+        df["bb_middle"] = sma_20
+        df["bb_lower"] = sma_20 - (std_20 * 2)
 
-        if avg_loss == 0:
-            return 100.0
+        # Volume ratio
+        df["volume_sma"] = df["volume"].rolling(window=20).mean()
+        df["volume_ratio"] = df["volume"] / df["volume_sma"]
 
-        rs = avg_gain / avg_loss
-        rsi = 100 - (100 / (1 + rs))
-
-        return rsi
-
-    def _calculate_macd(self, prices: List[float]) -> Dict[str, float]:
-        """Calculate MACD indicator"""
-        fast = self.indicators["macd"]["fast"]
-        slow = self.indicators["macd"]["slow"]
-        signal_period = self.indicators["macd"]["signal"]
-
-        if len(prices) < slow:
-            return {"macd": 0, "macd_signal": 0, "macd_histogram": 0}
-
-        # Calculate EMAs
-        ema_fast = self._calculate_ema_single(prices, fast)
-        ema_slow = self._calculate_ema_single(prices, slow)
-
-        macd_line = ema_fast - ema_slow
-
-        # For signal line, we'd need historical MACD values - simplified here
-        macd_signal = macd_line * 0.9  # Simplified
-        macd_histogram = macd_line - macd_signal
-
-        return {
-            "macd": macd_line,
-            "macd_signal": macd_signal,
-            "macd_histogram": macd_histogram,
-        }
-
-    def _calculate_bollinger_bands(self, prices: List[float]) -> Dict[str, float]:
-        """Calculate Bollinger Bands"""
-        period = self.indicators["bollinger"]["period"]
-        std_dev = self.indicators["bollinger"]["std"]
-
-        if len(prices) < period:
-            return {"bb_upper": 0, "bb_middle": 0, "bb_lower": 0}
-
-        recent_prices = prices[-period:]
-        middle = sum(recent_prices) / period
-
-        variance = sum((price - middle) ** 2 for price in recent_prices) / period
-        std = variance**0.5
-
-        upper = middle + (std * std_dev)
-        lower = middle - (std * std_dev)
-
-        return {"bb_upper": upper, "bb_middle": middle, "bb_lower": lower}
-
-    def _calculate_sma(
-        self, prices: List[float], periods: List[int]
-    ) -> Dict[str, float]:
-        """Calculate Simple Moving Averages"""
-        sma_values = {}
-
-        for period in periods:
-            if len(prices) >= period:
-                recent_prices = prices[-period:]
-                sma = sum(recent_prices) / period
-                sma_values[f"sma_{period}"] = sma
-            else:
-                sma_values[f"sma_{period}"] = prices[-1] if prices else 0
-
-        return sma_values
-
-    def _calculate_ema(
-        self, prices: List[float], periods: List[int]
-    ) -> Dict[str, float]:
-        """Calculate Exponential Moving Averages"""
-        ema_values = {}
-
-        for period in periods:
-            if len(prices) >= period:
-                ema = self._calculate_ema_single(prices, period)
-                ema_values[f"ema_{period}"] = ema
-            else:
-                ema_values[f"ema_{period}"] = prices[-1] if prices else 0
-
-        return ema_values
-
-    def _calculate_ema_single(self, prices: List[float], period: int) -> float:
-        """Calculate single EMA"""
-        if not prices:
-            return 0
-
-        multiplier = 2 / (period + 1)
-        ema = prices[0]
-
-        for price in prices[1:]:
-            ema = (price * multiplier) + (ema * (1 - multiplier))
-
-        return ema
+        return df
 
     def _evaluate_symbol_signals(
         self, symbol: str, analysis: Dict[str, Any]
@@ -298,15 +208,16 @@ class TechnicalAnalysisAgent:
         bb_lower = analysis.get("bb_lower", 0)
         sma_20 = analysis.get("sma_20", 0)
         sma_50 = analysis.get("sma_50", 0)
+        volume_ratio = analysis.get("volume_ratio", 1.0)
 
         buy_signals = 0
         sell_signals = 0
 
         # RSI signals
-        if rsi < 30:
+        if rsi < self.rsi_oversold:
             buy_signals += 1
             signals["reasoning"].append(f"RSI oversold ({rsi:.1f})")
-        elif rsi > 70:
+        elif rsi > self.rsi_overbought:
             sell_signals += 1
             signals["reasoning"].append(f"RSI overbought ({rsi:.1f})")
 
@@ -318,29 +229,35 @@ class TechnicalAnalysisAgent:
             sell_signals += 1
             signals["reasoning"].append("MACD bearish")
 
-        # Bollinger Bands signals
-        if current_price < bb_lower:
-            buy_signals += 1
-            signals["reasoning"].append("Price below lower BB")
-        elif current_price > bb_upper:
-            sell_signals += 1
-            signals["reasoning"].append("Price above upper BB")
+        # Bollinger Bands signals (only if we have valid values)
+        if bb_lower > 0 and bb_upper > 0:
+            if current_price < bb_lower:
+                buy_signals += 1
+                signals["reasoning"].append("Price below lower BB")
+            elif current_price > bb_upper:
+                sell_signals += 1
+                signals["reasoning"].append("Price above upper BB")
 
-        # Moving average signals
-        if current_price > sma_20 and sma_20 > sma_50:
-            buy_signals += 1
-            signals["reasoning"].append("Above rising MA")
-        elif current_price < sma_20 and sma_20 < sma_50:
-            sell_signals += 1
-            signals["reasoning"].append("Below falling MA")
+        # Moving average signals (only if we have valid values)
+        if sma_20 > 0 and sma_50 > 0:
+            if current_price > sma_20 and sma_20 > sma_50:
+                buy_signals += 1
+                signals["reasoning"].append("Above rising MA")
+            elif current_price < sma_20 and sma_20 < sma_50:
+                sell_signals += 1
+                signals["reasoning"].append("Below falling MA")
+
+        # Volume confirmation
+        if volume_ratio > 1.2:
+            signals["reasoning"].append(f"Volume spike ({volume_ratio:.2f}x)")
 
         # Determine action
         if buy_signals >= 3:
             signals["action"] = "buy"
-            signals["strength"] = buy_signals / 5.0
+            signals["strength"] = min(buy_signals / 5.0, 1.0)
         elif sell_signals >= 3:
             signals["action"] = "sell"
-            signals["strength"] = sell_signals / 5.0
+            signals["strength"] = min(sell_signals / 5.0, 1.0)
         else:
             signals["action"] = "hold"
             signals["strength"] = 0.5
@@ -364,18 +281,6 @@ class TechnicalAnalysisAgent:
                 count += 1
 
         return total_confidence / count if count > 0 else 0.0
-
-    def _get_base_price(self, symbol: str) -> float:
-        """Get base price for symbol"""
-        prices = {
-            "BTC/USDT": 50000.0,
-            "ETH/USDT": 3000.0,
-            "BNB/USDT": 400.0,
-            "SOL/USDT": 150.0,
-            "AVAX/USDT": 40.0,
-            "MATIC/USDT": 0.9,
-        }
-        return prices.get(symbol, 100.0)
 
     async def get_status(self) -> Dict[str, Any]:
         """Get agent status"""

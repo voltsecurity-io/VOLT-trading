@@ -1,0 +1,144 @@
+╔══════════════════════════════════════════════════════════════╗
+║          🔐 LÄGG TILL BINANCE API-NYCKLAR - GUIDE           ║
+╚══════════════════════════════════════════════════════════════╝
+
+Du har 2 alternativ:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 ALTERNATIV 1: Automatisk Setup (ENKLAST!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Kör detta kommando och följ instruktionerna:
+
+  cd ~/VOLT-trading
+  ./setup_api_keys.sh
+
+Scriptet kommer att:
+  ✓ Fråga om testnet eller production
+  ✓ Säkert samla in dina nycklar (syns ej på skärmen)
+  ✓ Skapa backup av nuvarande config
+  ✓ Uppdatera config/trading.json
+  ✓ Verifiera att allt fungerar
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✏️  ALTERNATIV 2: Manuell Redigering
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Öppna config-filen:
+   
+   I VS Code:
+     Ctrl+P → skriv "trading.json" → Enter
+   
+   Eller i terminal:
+     nano ~/VOLT-trading/config/trading.json
+
+2. Hitta denna sektion:
+
+   "exchange": {
+     "name": "binance",
+     "sandbox": true,
+     "api_key": "",
+     "api_secret": "",
+     "password": ""
+   }
+
+3. Ändra till:
+
+   "exchange": {
+     "name": "binance",
+     "sandbox": true,           ← true=Testnet, false=Production
+     "api_key": "DIN_API_KEY",
+     "api_secret": "DIN_SECRET",
+     "password": ""              ← Lämna tom
+   }
+
+4. Spara filen (Ctrl+S i VS Code, Ctrl+O i nano)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ EFTER DU LAGT TILL NYCKLAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Verifiera att nycklarna fungerar:
+
+   python verify_api_keys.py
+
+   Du ska se:
+   ✅ API Key: abc12345...xyz9
+   ✅ USDT Balance: $10000.00
+   ✅ BTC/USDT Price: $96,500.00
+   🎉 ALL CHECKS PASSED!
+
+2. Stoppa nuvarande trading (om det körs):
+
+   Ctrl+C i trading-terminalen
+
+3. Starta om systemet:
+
+   ./start_dryrun.sh
+
+4. Övervaka att API-nycklarna används:
+
+   I loggarna ska du nu se:
+   ✅ Binance exchange ready — sandbox, authenticated
+
+   Istället för:
+   ⚠️  public-only (no API keys)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  VIKTIGT ATT VETA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TESTNET (sandbox: true)
+  • URL: https://testnet.binance.vision/
+  • Fake pengar, riktig miljö
+  • INGEN RISK - perfekt för att testa!
+  • Rekommenderad för första körningen
+
+PRODUCTION (sandbox: false)
+  • URL: https://www.binance.com/
+  • RIKTIGA PENGAR!
+  • Använd ENDAST efter noggrann testning
+  • Börja med SMÅ belopp!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 SÄKERHET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+API Key Permissions (på Binance):
+  ✅ Enable Reading
+  ✅ Enable Spot & Margin Trading
+  ❌ Enable Withdrawals (ALDRIG AKTIVERA!)
+
+Git Säkerhet:
+  ✅ config/trading.json är redan i .gitignore
+  ✅ Dina nycklar pushas ALDRIG till GitHub
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 MER HJÄLP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Detaljerad guide: 
+  cat API_KEY_SETUP.md
+
+Eller öppna i VS Code:
+  Ctrl+P → "API_KEY_SETUP.md"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 QUICK START (REKOMMENDERAT)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  cd ~/VOLT-trading
+  ./setup_api_keys.sh        # Lägg till nycklar
+  python verify_api_keys.py  # Verifiera att de fungerar
+  ./start_dryrun.sh          # Starta trading!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Lycka till! 🎉

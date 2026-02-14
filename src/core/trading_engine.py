@@ -4,7 +4,9 @@ Core trading logic and execution engine
 """
 
 import asyncio
+import json
 import logging
+from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import pandas as pd
@@ -34,12 +36,21 @@ class TradingEngine:
         self.positions = {}
         self.last_update = None
 
+        # Stability tracking
+        self._consecutive_errors = 0
+        self._max_consecutive_errors = 10
+        self._loop_count = 0
+        self._last_heartbeat = None
+        self._state_file = Path("reports/engine_state.json")
+
     async def initialize(self):
         """Initialize trading engine components"""
-        self.logger.info("🔧 Initializing Trading Engine...")
+        self.logger.info("Initializing Trading Engine...")
 
         # Initialize exchange connection
         exchange_config = self.config_manager.get_exchange_config()
+        # Pass initial_capital to exchange config for DryRun
+        exchange_config["initial_capital"] = self.config.get("initial_capital", 10000)
         self.exchange = ExchangeFactory.create_exchange(
             exchange_config["name"], exchange_config
         )
@@ -53,48 +64,55 @@ class TradingEngine:
         self.risk_manager = RiskManager(self.config_manager)
         await self.risk_manager.initialize()
 
-        self.logger.info("✅ Trading Engine initialized successfully")
+        # Load persisted state
+        self._load_state()
+
+        self.logger.info("Trading Engine initialized successfully")
 
     async def start(self):
         """Start the trading engine"""
         if self.running:
-            self.logger.warning("⚠️ Trading engine is already running")
+            self.logger.warning("Trading engine is already running")
             return
 
         self.running = True
-        self.logger.info("🚀 Starting Trading Engine...")
+        self.logger.info("Starting Trading Engine...")
 
         try:
-            # Start main trading loop
             await self._trading_loop()
-
+        except asyncio.CancelledError:
+            self.logger.info("Trading engine task cancelled")
         except Exception as e:
-            self.logger.error(f"❌ Trading engine error: {e}")
+            self.logger.error(f"Trading engine error: {e}")
+        finally:
             self.running = False
 
     async def stop(self):
         """Stop the trading engine"""
-        if not self.running:
-            return
-
         self.running = False
-        self.logger.info("🛑 Stopping Trading Engine...")
+        self.logger.info("Stopping Trading Engine...")
 
-        # Close positions if needed
-        await self._emergency_shutdown()
+        # Save state before stopping
+        self._save_state()
 
-        # Release exchange connection
+        # Always close exchange connection
         if self.exchange and hasattr(self.exchange, "close"):
-            await self.exchange.close()
+            try:
+                await self.exchange.close()
+            except Exception as e:
+                self.logger.error(f"Error closing exchange: {e}")
 
-        self.logger.info("👋 Trading Engine stopped")
+        self.logger.info("Trading Engine stopped")
 
     async def _trading_loop(self):
-        """Main trading loop"""
-        self.logger.info("📊 Starting main trading loop...")
+        """Main trading loop with reconnection and error resilience"""
+        self.logger.info("Starting main trading loop...")
 
         while self.running:
             try:
+                self._last_heartbeat = datetime.now()
+                self._loop_count += 1
+
                 # Get market data
                 market_data = await self._get_market_data()
 
@@ -111,20 +129,75 @@ class TradingEngine:
                         if risk_assessment["approved"]:
                             await self._execute_signal(signal, risk_assessment)
                         else:
-                            self.logger.warning(
-                                f"⚠️ Signal rejected by risk manager: {risk_assessment['reason']}"
+                            self.logger.info(
+                                f"Signal rejected: {signal['symbol']} {signal['action']} "
+                                f"- {risk_assessment['reason']}"
                             )
 
                 # Update positions and monitor
                 await self._update_positions()
                 await self._monitor_performance()
+                
+                # Phase 0: Update VIX data every 10 loops (~50 minutes)
+                if self._loop_count % 10 == 0:
+                    await self.strategy.update_vix_data()
+
+                # Reset error counter on success
+                self._consecutive_errors = 0
+
+                # Periodic state save (every 10 loops)
+                if self._loop_count % 10 == 0:
+                    self._save_state()
+
+                # Log heartbeat every 12 loops (~1h on 5m timeframe)
+                if self._loop_count % 12 == 0:
+                    self.logger.info(
+                        f"Heartbeat: loop #{self._loop_count}, "
+                        f"positions: {len(self.positions)}, "
+                        f"errors: {self._consecutive_errors}"
+                    )
 
                 # Sleep before next iteration
                 await asyncio.sleep(self._get_sleep_interval())
 
+            except asyncio.CancelledError:
+                raise  # Let cancellation propagate
             except Exception as e:
-                self.logger.error(f"💥 Trading loop error: {e}")
-                await asyncio.sleep(5)  # Brief pause on error
+                self._consecutive_errors += 1
+                self.logger.error(
+                    f"Trading loop error ({self._consecutive_errors}/{self._max_consecutive_errors}): {e}"
+                )
+
+                if self._consecutive_errors >= self._max_consecutive_errors:
+                    self.logger.error(
+                        "Too many consecutive errors - attempting exchange reconnection"
+                    )
+                    await self._attempt_reconnection()
+                    self._consecutive_errors = 0
+
+                # Exponential backoff: 5s, 10s, 20s, 40s... max 300s
+                backoff = min(5 * (2 ** (self._consecutive_errors - 1)), 300)
+                await asyncio.sleep(backoff)
+
+    async def _attempt_reconnection(self):
+        """Attempt to reconnect to exchange after persistent errors"""
+        self.logger.info("Attempting exchange reconnection...")
+        try:
+            if self.exchange and hasattr(self.exchange, "close"):
+                try:
+                    await self.exchange.close()
+                except Exception:
+                    pass
+
+            exchange_config = self.config_manager.get_exchange_config()
+            exchange_config["initial_capital"] = self.config.get("initial_capital", 10000)
+            self.exchange = ExchangeFactory.create_exchange(
+                exchange_config["name"], exchange_config
+            )
+            await self.exchange.initialize()
+            self.logger.info("Exchange reconnection successful")
+        except Exception as e:
+            self.logger.error(f"Exchange reconnection failed: {e}")
 
     async def _get_market_data(self) -> Optional[pd.DataFrame]:
         """Get current market data"""
@@ -148,7 +221,7 @@ class TradingEngine:
             return all_data if all_data else None
 
         except Exception as e:
-            self.logger.error(f"❌ Error getting market data: {e}")
+            self.logger.error(f"Error getting market data: {e}")
             return None
 
     async def _execute_signal(
@@ -163,7 +236,8 @@ class TradingEngine:
             position_size = risk_assessment["position_size"]
 
             self.logger.info(
-                f"🎯 Executing {action} signal for {symbol} - Size: {position_size}"
+                f"Executing {action} signal for {symbol} - "
+                f"Size: {position_size}, Strength: {signal.get('strength', 0):.2f}"
             )
 
             if action == "buy":
@@ -176,25 +250,25 @@ class TradingEngine:
                 )
 
             if order:
-                self.logger.info(f"✅ Order executed: {order}")
+                self.logger.info(
+                    f"Order executed: {order.get('side')} {order.get('filled')} "
+                    f"{order.get('symbol')} @ {order.get('price')}"
+                )
                 await self._update_positions_after_order(order)
             else:
-                self.logger.error(f"❌ Failed to execute order for {symbol}")
+                self.logger.error(f"Failed to execute order for {symbol}")
 
         except Exception as e:
-            self.logger.error(f"💥 Error executing signal: {e}")
+            self.logger.error(f"Error executing signal: {e}")
 
     async def _update_positions(self):
         """Update current positions"""
         try:
-            # Get current positions from exchange
             current_positions = await self.exchange.get_positions()
             self.positions = current_positions
-
             self.last_update = datetime.now()
-
         except Exception as e:
-            self.logger.error(f"❌ Error updating positions: {e}")
+            self.logger.error(f"Error updating positions: {e}")
 
     async def _update_positions_after_order(self, order: Dict[str, Any]):
         """Update positions after order execution"""
@@ -209,7 +283,6 @@ class TradingEngine:
                 "side": "long",
             }
 
-        # Update position based on order
         order_qty = float(order.get("filled", 0))
         if order.get("side") == "buy":
             self.positions[symbol]["quantity"] += order_qty
@@ -219,7 +292,6 @@ class TradingEngine:
     async def _monitor_performance(self):
         """Monitor trading performance"""
         try:
-            # Calculate portfolio metrics
             total_value = 0.0
             total_pnl = 0.0
 
@@ -230,7 +302,6 @@ class TradingEngine:
                         market_value = position["quantity"] * current_price
                         total_value += market_value
 
-                        # Calculate PnL
                         if position["quantity"] > 0:
                             pnl = (current_price - position["entry_price"]) * position[
                                 "quantity"
@@ -238,41 +309,48 @@ class TradingEngine:
                             total_pnl += pnl
                             position["unrealized_pnl"] = pnl
 
-            # Log performance metrics
             if self.last_update:
+                active = len([p for p in self.positions.values() if p["quantity"] != 0])
                 self.logger.info(
-                    f"📊 Portfolio Value: ${total_value:.2f} | "
-                    f"P&L: ${total_pnl:.2f} | "
-                    f"Positions: {len([p for p in self.positions.values() if p['quantity'] != 0])}"
+                    f"Portfolio: ${total_value:.2f} | P&L: ${total_pnl:.2f} | "
+                    f"Positions: {active}"
                 )
 
         except Exception as e:
-            self.logger.error(f"❌ Error monitoring performance: {e}")
+            self.logger.error(f"Error monitoring performance: {e}")
 
-    async def _emergency_shutdown(self):
-        """Emergency shutdown - close all positions"""
-        self.logger.warning("🚨 Emergency shutdown initiated...")
+    def _save_state(self):
+        """Persist engine state for crash recovery"""
+        try:
+            Path("reports").mkdir(exist_ok=True)
+            state = {
+                "positions": self.positions,
+                "loop_count": self._loop_count,
+                "last_heartbeat": self._last_heartbeat.isoformat() if self._last_heartbeat else None,
+                "last_update": self.last_update.isoformat() if self.last_update else None,
+                "saved_at": datetime.now().isoformat(),
+            }
+            with open(self._state_file, "w") as f:
+                json.dump(state, f, indent=2)
+        except Exception as e:
+            self.logger.error(f"Failed to save engine state: {e}")
 
-        for symbol, position in self.positions.items():
-            if position["quantity"] != 0:
-                try:
-                    if position["quantity"] > 0:
-                        await self.exchange.create_market_sell_order(
-                            symbol, abs(position["quantity"])
-                        )
-                    else:
-                        await self.exchange.create_market_buy_order(
-                            symbol, abs(position["quantity"])
-                        )
-                    self.logger.info(f"✅ Closed position in {symbol}")
-                except Exception as e:
-                    self.logger.error(f"❌ Error closing {symbol}: {e}")
+    def _load_state(self):
+        """Load persisted engine state"""
+        try:
+            if self._state_file.exists():
+                with open(self._state_file, "r") as f:
+                    state = json.load(f)
+                self.positions = state.get("positions", {})
+                self._loop_count = state.get("loop_count", 0)
+                self.logger.info(f"Loaded engine state from {state.get('saved_at')}")
+        except Exception as e:
+            self.logger.warning(f"Could not load engine state: {e}")
 
     def _get_sleep_interval(self) -> int:
         """Get sleep interval between trading loop iterations"""
         timeframe = self.config.get("timeframe", "5m")
 
-        # Convert timeframe to seconds
         if timeframe.endswith("m"):
             return int(timeframe[:-1]) * 60
         elif timeframe.endswith("h"):

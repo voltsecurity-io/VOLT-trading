@@ -53,6 +53,10 @@ class BaseExchange(ABC):
         """Get current positions"""
         pass
 
+    async def get_balance(self) -> Dict[str, Any]:
+        """Get account balance - default returns empty dict"""
+        return {}
+
 
 class BinanceExchangeStub(BaseExchange):
     """Stub Binance exchange for development without API keys"""
@@ -256,10 +260,12 @@ class ExchangeFactory:
         """Create exchange instance"""
 
         from src.exchanges.binance_exchange import BinanceExchange
+        from src.exchanges.dryrun_exchange import DryRunExchange
 
         exchanges = {
             "binance": BinanceExchange,
             "binance_stub": BinanceExchangeStub,
+            "binance_dryrun": DryRunExchange,
             "trocador": TrocadorExchange,
         }
 

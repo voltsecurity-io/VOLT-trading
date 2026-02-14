@@ -1,0 +1,77 @@
+╔══════════════════════════════════════════════════════════════╗
+║           🔄 STARTA OM 12-TIMMARS TESTET                     ║
+╚══════════════════════════════════════════════════════════════╝
+
+Testet avbröts vid API-verifiering (nu fixat!)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 STARTA TESTET NU (2 sätt)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+METOD 1: Quick Start (Rekommenderad)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  cd ~/VOLT-trading
+  ./quick_start_test.sh
+
+  Detta:
+    ✓ Startar direkt (ingen API-verifiering först)
+    ✓ Förhindrar laptop-sleep automatiskt
+    ✓ Startar dashboard och trading
+    ✓ Loggar till fil
+    ✓ Skapar test metadata
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+METOD 2: Fullständig (med verifiering)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  cd ~/VOLT-trading
+  ./run_12h_test.sh
+
+  Nu borde API-verifieringen fungera!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+VAD JAG FIXADE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Problem: verify_api_keys.py använde fel import
+  ❌ from src.exchanges.exchange_factory import create_exchange
+  ✅ from src.exchanges.exchange_factory import ExchangeFactory
+
+Fixat:
+  ✓ verify_api_keys.py uppdaterad
+  ✓ run_12h_test.sh uppdaterad (använder venv korrekt)
+  ✓ Skapade quick_start_test.sh (skippar verifiering)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EFTER START
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Dashboard:
+    http://localhost:8501
+
+  Kolla status:
+    ./check_test_status.sh
+
+  Visa logs:
+    tail -f logs/12h_test_*.log
+
+  Stoppa:
+    ./stop_test.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ QUICK START:
+
+  ./quick_start_test.sh
+
+Sedan öppna: http://localhost:8501
+
+Lycka till! 🚀

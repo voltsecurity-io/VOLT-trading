@@ -11,6 +11,7 @@ from datetime import datetime
 
 from src.core.config_manager import ConfigManager
 from src.utils.logger import get_logger
+from src.collectors.volatility_collector import VolatilityCollector
 
 
 class VOLTStrategy:
@@ -23,8 +24,8 @@ class VOLTStrategy:
 
         # Strategy parameters
         self.rsi_period = 14
-        self.rsi_overbought = 70
-        self.rsi_oversold = 30
+        self.rsi_overbought = 65  # Lowered from 70 - sell earlier for more activity
+        self.rsi_oversold = 35    # Raised from 30 - buy earlier for more activity
 
         self.macd_fast = 12
         self.macd_slow = 26
@@ -37,6 +38,11 @@ class VOLTStrategy:
         self.max_position_size = self.config.get("max_position_size", 0.10)
         self.stop_loss = self.config.get("stop_loss", 0.05)
         self.take_profit = self.config.get("take_profit", 0.10)
+        
+        # Phase 0: Volatility collector for dynamic thresholds
+        self.volatility_collector = VolatilityCollector()
+        self.current_vix = 20.0  # Default
+        self.vix_regime = "NORMAL"
 
     async def initialize(self):
         """Initialize strategy components"""
@@ -122,38 +128,58 @@ class VOLTStrategy:
         latest = df.iloc[-1]
         previous = df.iloc[-2]
 
-        # Buy conditions
-        buy_conditions = [
-            latest["rsi"] < self.rsi_oversold,
-            latest["macd"] > latest["macd_signal"],
-            previous["macd"] <= previous["macd_signal"],  # Bullish crossover
-            latest["close"] < latest["bb_lower"],
-            latest["volume_ratio"] > 1.2,  # Volume spike
-            latest["close"] > latest["sma_50"],  # Above long-term MA
-        ]
+        # Buy conditions - scored individually (no longer requires ALL to be true)
+        buy_score = 0
+        buy_total = 6
+        if latest["rsi"] < self.rsi_oversold:
+            buy_score += 1.5  # Strong indicator
+        elif latest["rsi"] < 40:
+            buy_score += 0.5  # Approaching oversold
+        if latest["macd"] > latest["macd_signal"]:
+            buy_score += 1.0
+        if previous["macd"] <= previous["macd_signal"]:  # Fresh crossover
+            buy_score += 1.0
+        if latest["close"] < latest["bb_lower"]:
+            buy_score += 1.0
+        elif latest["close"] < latest["bb_middle"]:
+            buy_score += 0.3  # Below middle band
+        if latest["volume_ratio"] > 1.2:
+            buy_score += 0.5
+        if latest["close"] > latest["sma_50"]:
+            buy_score += 0.5  # Trend confirmation (bonus, not required)
 
-        # Sell conditions
-        sell_conditions = [
-            latest["rsi"] > self.rsi_overbought,
-            latest["macd"] < latest["macd_signal"],
-            previous["macd"] >= previous["macd_signal"],  # Bearish crossover
-            latest["close"] > latest["bb_upper"],
-            latest["volume_ratio"] > 1.2,
-        ]
+        # Sell conditions - scored individually
+        sell_score = 0
+        sell_total = 5
+        if latest["rsi"] > self.rsi_overbought:
+            sell_score += 1.5
+        elif latest["rsi"] > 60:
+            sell_score += 0.5
+        if latest["macd"] < latest["macd_signal"]:
+            sell_score += 1.0
+        if previous["macd"] >= previous["macd_signal"]:  # Fresh crossover
+            sell_score += 1.0
+        if latest["close"] > latest["bb_upper"]:
+            sell_score += 1.0
+        if latest["volume_ratio"] > 1.2:
+            sell_score += 0.5
 
-        # Determine signal
+        # Determine signal - minimum 3.0 score required
         signal_strength = 0
         signal_action = None
 
-        if all(buy_conditions[:4]):  # Core conditions
+        if buy_score >= 3.0 and buy_score > sell_score:
             signal_action = "buy"
-            signal_strength = sum(buy_conditions) / len(buy_conditions)
+            signal_strength = min(buy_score / buy_total, 1.0)
 
-        elif all(sell_conditions[:4]):  # Core conditions
+        elif sell_score >= 3.0 and sell_score > buy_score:
             signal_action = "sell"
-            signal_strength = sum(sell_conditions) / len(sell_conditions)
+            signal_strength = min(sell_score / sell_total, 1.0)
 
-        if signal_action and signal_strength > 0.6:
+        # Phase 0: Dynamic threshold based on VIX regime
+        threshold = self._get_adaptive_threshold()
+        
+        if signal_action and signal_strength > threshold:
             # Calculate position size using Kelly Criterion
             win_rate = self._estimate_win_rate(symbol, df)
             avg_win_loss = self._estimate_avg_win_loss(df)
@@ -282,6 +308,63 @@ class VOLTStrategy:
                 reasons.append("Price at upper Bollinger Band")
 
         return "; ".join(reasons) if reasons else "Technical analysis signal"
+    
+    def _get_adaptive_threshold(self) -> float:
+        """
+        Phase 0: Dynamic signal strength threshold based on VIX regime
+        
+        Market Regimes:
+        - VIX < 12: LOW (0.40 threshold - be aggressive)
+        - VIX 12-20: NORMAL (0.45 threshold - standard)
+        - VIX 20-30: ELEVATED (0.55 threshold - be cautious)
+        - VIX > 30: PANIC (0.70 threshold - very selective)
+        
+        Returns:
+            float: Threshold for signal_strength
+        """
+        
+        # Use cached VIX or default
+        vix = self.current_vix
+        
+        if vix < 12:
+            threshold = 0.40
+            regime = "LOW"
+        elif vix < 20:
+            threshold = 0.45
+            regime = "NORMAL"
+        elif vix < 30:
+            threshold = 0.55
+            regime = "ELEVATED"
+        else:
+            threshold = 0.70
+            regime = "PANIC"
+        
+        # Log if regime changed
+        if regime != self.vix_regime:
+            self.logger.info(
+                f"📊 VIX regime changed: {self.vix_regime} → {regime} "
+                f"(VIX={vix:.1f}, threshold={threshold:.2f})"
+            )
+            self.vix_regime = regime
+        
+        return threshold
+    
+    async def update_vix_data(self):
+        """
+        Phase 0: Update VIX data for adaptive thresholds
+        Call this periodically (e.g., every 5 minutes)
+        """
+        try:
+            vix_data = await self.volatility_collector.get_vix_data()
+            self.current_vix = vix_data['current_vix']
+            self.vix_regime = vix_data['regime']
+            
+            self.logger.debug(
+                f"📊 VIX updated: {self.current_vix:.1f} ({self.vix_regime})"
+            )
+            
+        except Exception as e:
+            self.logger.warning(f"⚠️ Failed to update VIX: {e}, using cached value")
 
     async def _load_lstm_model(self):
         """Load LSTM model for price prediction"""

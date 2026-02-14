@@ -1,0 +1,99 @@
+╔══════════════════════════════════════════════════════════════╗
+║       VOLT-TRADING - SNABB SAMMANFATTNING FÖR CLAUDE CODE   ║
+╚══════════════════════════════════════════════════════════════╝
+
+PROJEKT: AI-drivet cryptocurrency trading system
+SYSTEM: Lenovo ThinkPad X1 Nano, Arch Linux, Python 3.14
+PLATS: ~/VOLT-trading/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 MÅL
+
+Köra 12-timmars automated trading test med:
+- 20,000 SEK startkapital (Binance Testnet)
+- 5 AI-agenter (Market, Technical, Sentiment, Execution, Monitoring)
+- Live Streamlit dashboard
+- Full P&L tracking
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🐛 HUVUDPROBLEM
+
+Trading processen KRASCHAR efter initialisering:
+1. ✅ Alla komponenter initialiseras korrekt
+2. ✅ Trading loop startar
+3. ❌ Process dör efter 5 sekunder
+4. ❌ INGA felmeddelanden i logs
+5. ❌ Fungerar i interactive terminal men EJ detached
+
+Sista loggraderna:
+```
+2026-02-13 16:20:23,228 - src.agents.simple_agents - INFO - 🚀 Monitoring Agent started
+[INGEN MER OUTPUT - PROCESS KRASCHAR]
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 VAD SOM FUNGERAR
+
+✅ 36/36 tests passing
+✅ Binance API connection (testnet)
+✅ Dashboard (http://localhost:8501)
+✅ python main.py fungerar i INTERACTIVE terminal
+✅ Alla agenter fungerar individuellt
+✅ Risk management, P&L tracking
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 TESTADE LÖSNINGAR
+
+❌ systemd-inhibit → HUP signal när detached
+❌ nohup ./script.sh → Samma problem
+❌ script.sh & → Process dör utan error
+✅ python main.py (interactive) → Fungerar!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 VIKTIGA FILER
+
+main.py                        # Entry point
+src/core/trading_engine.py     # Main trading loop (async)
+src/agents/agent_orchestrator.py  # Koordinerar 5 agenter (asyncio.gather)
+config/trading.json            # 20000 SEK, sandbox: true
+logs/12h_test_*.log            # Kraschar efter initialisering
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 VAD JAG BEHÖVER HJÄLP MED
+
+1. Varför kraschar async loop utan error?
+2. Hur kör vi processen detached/background?
+3. Hur förhindrar vi laptop-sleep utan systemd-inhibit?
+4. Bästa sätt att logga async exceptions?
+5. Ska vi använda supervisor/systemd service?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 FULLSTÄNDIG RAPPORT
+
+Se: ~/VOLT-trading/TECH_RAPPORT_FOR_CLAUDE_CODE.md
+
+Innehåller:
+- Komplett filstruktur
+- All kod och config
+- Detaljerade logs
+- Försök och lösningar
+- Specifika frågor
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏰ TIDSLINJE
+
+NU: Behöver fixa innan sova
+MÅL: Systemet ska köra över natten (12h)
+RESULTAT: Analysera imorgon
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Tack för hjälpen! 🚀
