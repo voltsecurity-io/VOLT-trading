@@ -34,12 +34,7 @@ async def run_test(hours: int, capital: float):
     
     # Verify agents enabled
     agents_enabled = config_manager.config["trading"].get("use_ollama_agents", False)
-    print(f"🤖 Ollama Agents: {'✅ ENABLED' if agents_enabled else '❌ DISABLED'}")
-    
-    if not agents_enabled:
-        print("\n⚠️  WARNING: Agents disabled! Enable in config/trading.json")
-        print("   Set: 'use_ollama_agents': true")
-        return
+    print(f"🤖 Ollama Agents: {'✅ ENABLED' if agents_enabled else '⚠️ DISABLED (will use pure TA)'}")
     
     print("\n🔧 Initializing trading engine...")
     

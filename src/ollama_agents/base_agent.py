@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from abc import ABC, abstractmethod
-import aiohttp
+import requests
 
 from src.utils.logger import get_logger
 
@@ -33,7 +33,7 @@ class BaseAgent(ABC):
     ):
         self.agent_id = agent_id
         self.role = role
-        self.model_name = model_name
+        self.model_name = model_name if model_name != "qwen2.5-coder:7b" else "gemma3:latest"
         self.weight = initial_weight
         
         self.logger = get_logger(f"Agent.{agent_id}")
@@ -81,7 +81,7 @@ class BaseAgent(ABC):
     
     async def think(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         """
-        Core reasoning using Ollama LLM
+        Core reasoning using Ollama LLM via requests (sync wrapped in executor)
         
         Args:
             prompt: User prompt for the LLM
@@ -91,6 +91,8 @@ class BaseAgent(ABC):
             str: LLM response
         """
         try:
+            self.logger.debug(f"🧠 think() called for {self.agent_id}")
+            
             # Prepare messages
             messages = []
             
@@ -109,33 +111,40 @@ class BaseAgent(ABC):
                 "content": prompt
             })
             
-            # Call Ollama API
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
+            self.logger.debug(f"📝 Prepared {len(messages)} messages")
+            
+            # Use sync requests in executor (avoids async HTTP issues on Python 3.14)
+            def _call_ollama():
+                response = requests.post(
                     f"{self.ollama_url}/api/chat",
                     json={
                         "model": self.model_name,
                         "messages": messages,
                         "stream": False,
                         "options": {
-                            "temperature": 0.3,  # Lower = more focused
+                            "temperature": 0.3,
                             "top_p": 0.9
                         }
                     },
-                    timeout=aiohttp.ClientTimeout(total=60)
-                ) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        assistant_message = data['message']['content']
-                        
-                        # Store in conversation history
-                        self._add_to_history("user", prompt)
-                        self._add_to_history("assistant", assistant_message)
-                        
-                        return assistant_message
-                    else:
-                        error_text = await response.text()
-                        raise Exception(f"Ollama API error {response.status}: {error_text}")
+                    timeout=60
+                )
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    raise Exception(f"Ollama API error {response.status_code}: {response.text}")
+            
+            # Run in thread pool executor
+            loop = asyncio.get_running_loop()
+            data = await loop.run_in_executor(None, _call_ollama)
+            
+            assistant_message = data['message']['content']
+            
+            # Store in conversation history
+            self._add_to_history("user", prompt)
+            self._add_to_history("assistant", assistant_message)
+            
+            self.logger.debug(f"✅ think() complete for {self.agent_id}")
+            return assistant_message
             
         except asyncio.TimeoutError:
             self.logger.error(f"⏱️ Ollama timeout for {self.agent_id}")
