@@ -251,32 +251,89 @@ class RiskManager:
         return min(score, 1.0)
 
     def _get_correlation(self, symbol1: str, symbol2: str) -> float:
-        """Get correlation between two symbols (simplified)"""
-        # Simplified correlation based on asset classes
-        if "BTC" in symbol1 and "ETH" in symbol2:
-            return 0.8
-        elif "ETH" in symbol1 and "BTC" in symbol2:
-            return 0.8
-        elif "BTC" in symbol1 and "BTC" in symbol2:
+        """Get correlation between two symbols"""
+        base1 = symbol1.split("/")[0]
+        base2 = symbol2.split("/")[0]
+
+        if base1 == base2:
             return 1.0
-        elif "ETH" in symbol1 and "ETH" in symbol2:
-            return 1.0
-        else:
-            return 0.3  # Low correlation for different asset types
+
+        # Group assets by correlation cluster
+        # Cluster 1: Large-cap L1s (move together ~0.80)
+        large_l1 = {"BTC", "ETH"}
+        # Cluster 2: Mid-cap L1s (move together ~0.75, with large-cap ~0.65)
+        mid_l1 = {"SOL", "AVAX", "NEAR", "SUI", "ADA"}
+        # Cluster 3: DeFi tokens (~0.70 with each other, ~0.55 with L1s)
+        defi = {"UNI", "AAVE", "LINK"}
+        # Cluster 4: Meme coins (~0.60 with each other, ~0.40 with L1s)
+        meme = {"DOGE", "PEPE"}
+        # Cluster 5: Payment/utility (~0.50 with each other, ~0.45 with L1s)
+        payment = {"XRP", "TRX", "HBAR", "LTC", "BCH", "BNB", "DASH", "ZEC"}
+
+        def cluster(base):
+            if base in large_l1:
+                return "large_l1"
+            if base in mid_l1:
+                return "mid_l1"
+            if base in defi:
+                return "defi"
+            if base in meme:
+                return "meme"
+            if base in payment:
+                return "payment"
+            return "other"
+
+        c1, c2 = cluster(base1), cluster(base2)
+
+        # Same cluster correlations
+        same_cluster = {
+            "large_l1": 0.80, "mid_l1": 0.75, "defi": 0.70,
+            "meme": 0.60, "payment": 0.50,
+        }
+        if c1 == c2:
+            return same_cluster.get(c1, 0.40)
+
+        # Cross-cluster correlations
+        cross = {
+            frozenset({"large_l1", "mid_l1"}): 0.65,
+            frozenset({"large_l1", "defi"}): 0.55,
+            frozenset({"large_l1", "meme"}): 0.40,
+            frozenset({"large_l1", "payment"}): 0.45,
+            frozenset({"mid_l1", "defi"}): 0.55,
+            frozenset({"mid_l1", "meme"}): 0.35,
+            frozenset({"mid_l1", "payment"}): 0.40,
+            frozenset({"defi", "meme"}): 0.30,
+            frozenset({"defi", "payment"}): 0.35,
+            frozenset({"meme", "payment"}): 0.25,
+        }
+        return cross.get(frozenset({c1, c2}), 0.30)
 
     async def _get_symbol_volatility(self, symbol: str) -> float:
-        """Get volatility for a symbol (simplified)"""
-        # Simplified volatility calculation
+        """Get volatility for a symbol (daily realized vol estimate)"""
         volatilities = {
             "BTC/USDT": 0.03,
             "ETH/USDT": 0.04,
-            "BNB/USDT": 0.035,
             "SOL/USDT": 0.06,
+            "XRP/USDT": 0.045,
+            "BNB/USDT": 0.035,
+            "DOGE/USDT": 0.07,
+            "ADA/USDT": 0.055,
+            "LINK/USDT": 0.05,
             "AVAX/USDT": 0.055,
-            "MATIC/USDT": 0.05,
+            "SUI/USDT": 0.065,
+            "NEAR/USDT": 0.06,
+            "UNI/USDT": 0.055,
+            "PEPE/USDT": 0.09,
+            "TRX/USDT": 0.04,
+            "HBAR/USDT": 0.06,
+            "LTC/USDT": 0.04,
+            "BCH/USDT": 0.045,
+            "AAVE/USDT": 0.055,
+            "DASH/USDT": 0.05,
+            "ZEC/USDT": 0.05,
         }
 
-        return volatilities.get(symbol, 0.04)
+        return volatilities.get(symbol, 0.05)
 
     async def _load_correlation_data(self):
         """Load historical correlation data"""

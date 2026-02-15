@@ -242,12 +242,34 @@ class TradingEngine:
             symbol = signal["symbol"]
             action = signal["action"]  # 'buy' or 'sell'
 
-            # Calculate position size based on risk assessment
-            position_size = risk_assessment["position_size"]
+            # position_size from risk manager is a fraction of capital (e.g. 0.05 = 5%)
+            position_size_fraction = risk_assessment["position_size"]
+
+            # Get current price
+            price = signal.get("entry_price", 0)
+            if not price or price <= 0:
+                price = await self.exchange.get_ticker(symbol)
+            if not price or price <= 0:
+                self.logger.error(f"Cannot get price for {symbol}")
+                return
+
+            # Convert fraction to base currency amount
+            try:
+                balance = await self.exchange.get_balance()
+                available_capital = float(balance.get("USDT", 0))
+            except Exception:
+                available_capital = 0
+            if available_capital <= 0:
+                available_capital = self.config.get("initial_capital", 10000)
+
+            dollar_amount = available_capital * position_size_fraction
+            position_size = dollar_amount / price
 
             self.logger.info(
                 f"Executing {action} signal for {symbol} - "
-                f"Size: {position_size}, Strength: {signal.get('strength', 0):.2f}"
+                f"Fraction: {position_size_fraction:.3f}, "
+                f"Amount: {position_size:.6f} ({dollar_amount:.2f} USD), "
+                f"Strength: {signal.get('strength', 0):.2f}"
             )
 
             if action == "buy":

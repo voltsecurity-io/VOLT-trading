@@ -43,7 +43,7 @@ class VOLTStrategy:
         # Phase 0: Volatility collector for dynamic thresholds
         self.volatility_collector = VolatilityCollector()
         self.current_vix = 20.0  # Default
-        self.vix_regime = "NORMAL"
+        self.vix_regime = "ELEVATED"  # Matches _classify_regime(20.0)
         
         # Phase 1: Ollama multi-agent system (optional)
         self.use_agents = self.config.get("use_ollama_agents", True)
@@ -171,7 +171,7 @@ class VOLTStrategy:
         # BUT ONLY if we have a position to sell!
         sell_score = 0
         sell_total = 5
-        has_position = symbol in positions and positions[symbol].get('amount', 0) > 0
+        has_position = symbol in positions and positions[symbol].get('quantity', 0) > 0
         
         if has_position:
             if latest["rsi"] > self.rsi_overbought:

@@ -20,6 +20,13 @@ from src.core.trading_engine import TradingEngine
 async def run_test(hours: int, capital: float):
     """Run dry-run test for specified hours"""
     
+    # Setup logging to stdout (systemd captures it)
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
+    
     print("="*70)
     print("🚀 VOLT TRADING - 12H DRY-RUN TEST (Phase 0+1)")
     print("="*70)

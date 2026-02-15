@@ -66,6 +66,15 @@ class DryRunTest:
 
     async def initialize(self):
         """Initialize all components"""
+        # Clear previous test state for a fresh start
+        for state_file in [
+            Path("reports/dryrun_state.json"),
+            Path("reports/dryrun_trades.json"),
+            Path("reports/engine_state.json"),
+        ]:
+            if state_file.exists():
+                state_file.unlink()
+
         setup_logging(self.config_manager.get_logging_config())
         self.logger = logging.getLogger("DryRunTest")
 
@@ -107,18 +116,20 @@ class DryRunTest:
         self.logger.info(f"Test ends at:    {self.end_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
         try:
-            # Start components concurrently
-            engine_task = asyncio.create_task(self.trading_engine.start())
+            # Start trading engine (creates background trading loop, returns immediately)
+            await self.trading_engine.start()
+
+            # Start orchestrator and timer as concurrent tasks
             orchestrator_task = asyncio.create_task(self.agent_orchestrator.start())
             timer_task = asyncio.create_task(self._timer_loop())
-            self._tasks = [engine_task, orchestrator_task, timer_task]
+            self._tasks = [orchestrator_task, timer_task]
 
-            # Wait for timer to complete (or error)
+            # Wait for timer to complete (or error in orchestrator)
             done, pending = await asyncio.wait(
                 self._tasks, return_when=asyncio.FIRST_COMPLETED
             )
 
-            # If timer finished, cancel the others
+            # If timer finished, cancel the orchestrator
             for task in pending:
                 task.cancel()
             await asyncio.gather(*pending, return_exceptions=True)
