@@ -30,16 +30,16 @@ class ForexTradingAgent:
         self.running = False
 
         self.forex_pairs = [
-            "EUR/USD",
-            "GBP/USD",
-            "USD/JPY",
-            "USD/CHF",
-            "AUD/USD",
-            "USD/CAD",
-            "NZD/USD",
-            "EUR/GBP",
-            "EUR/JPY",
-            "GBP/JPY",
+            "BTC/USDT",
+            "ETH/USDT",
+            "BNB/USDT",
+            "SOL/USDT",
+            "XRP/USDT",
+            "USDC/USDT",
+            "DAI/USDT",
+            "BUSD/USDT",
+            "EUR/USDT",
+            "GBP/USDT",
         ]
 
         self.pair_data = {}

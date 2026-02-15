@@ -115,9 +115,20 @@ class MarketDataAgent:
 
             # Handle both dict and float returns for backwards compatibility
             if isinstance(ticker, dict):
-                price = ticker.get("last", 0) or ticker.get("bid", 0) or 0
+                last_val = ticker.get("last")
+                bid_val = ticker.get("bid")
+                price = (
+                    float(last_val)
+                    if last_val is not None
+                    else (float(bid_val) if bid_val is not None else 0)
+                )
             else:
-                price = ticker or 0
+                price = float(ticker) if ticker else 0
+
+            # Skip if price is invalid
+            if price <= 0:
+                self.logger.warning(f"⚠️ Invalid price for {symbol}")
+                return {}
 
             # Get OHLCV data for volume and price stats
             ohlcv = await self.exchange.get_ohlcv(symbol, self.timeframe, limit=24)
@@ -127,10 +138,14 @@ class MarketDataAgent:
                 return {}
 
             # Convert OHLCV to DataFrame for easier analysis
-            df = pd.DataFrame(
-                ohlcv,
-                columns=["timestamp", "open", "high", "low", "close", "volume"],
-            )
+            try:
+                df = pd.DataFrame(
+                    ohlcv,
+                    columns=["timestamp", "open", "high", "low", "close", "volume"],
+                )
+            except Exception as e:
+                self.logger.warning(f"⚠️ Failed to create DataFrame for {symbol}: {e}")
+                return {}
 
             # Calculate 24h stats
             high_24h = df["high"].max()

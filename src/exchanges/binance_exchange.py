@@ -61,12 +61,21 @@ class BinanceExchange(BaseExchange):
         """Fetch last traded price from Binance"""
         try:
             ticker = await self.client.fetch_ticker(symbol)
+
+            def safe_float(val, default=0.0):
+                if val is None:
+                    return default
+                try:
+                    return float(val)
+                except (ValueError, TypeError):
+                    return default
+
             return {
-                "last": float(ticker.get("last", 0)),
-                "bid": float(ticker.get("bid", 0)),
-                "ask": float(ticker.get("ask", 0)),
-                "volume": float(ticker.get("volume", 0)),
-                "percentage": float(ticker.get("percentage", 0)),
+                "last": safe_float(ticker.get("last")),
+                "bid": safe_float(ticker.get("bid")),
+                "ask": safe_float(ticker.get("ask")),
+                "volume": safe_float(ticker.get("volume")),
+                "percentage": safe_float(ticker.get("percentage")),
             }
         except ccxt_async.NetworkError as e:
             self.logger.error(f"Network error fetching ticker for {symbol}: {e}")
