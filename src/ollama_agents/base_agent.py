@@ -238,10 +238,44 @@ Output format:
 
         except asyncio.TimeoutError:
             self.logger.error(f"⏱️ Ollama timeout for {self.agent_id}")
-            return "ERROR: Timeout"
+            # Try fallback with any-llm
+            return await self._think_with_fallback(prompt, system_prompt)
         except Exception as e:
             self.logger.error(f"❌ Ollama error for {self.agent_id}: {e}")
-            return f"ERROR: {str(e)}"
+            # Try fallback with any-llm
+            return await self._think_with_fallback(prompt, system_prompt)
+
+    async def _think_with_fallback(self, prompt: str, system_prompt: str = None) -> str:
+        """Fallback to any-llm when Ollama fails"""
+        try:
+            import os
+            from any_llm import acompletion
+
+            # Check if we have an API key for fallback
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                self.logger.warning("No fallback API key available")
+                return "ERROR: Ollama failed and no fallback available"
+
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
+
+            # Use OpenAI as fallback
+            response = await acompletion(
+                model="gpt-4o-mini",
+                provider="openai",
+                messages=messages,
+            )
+
+            content = response.choices[0].message.content if response.choices else ""
+            self.logger.info(f"✅ Fallback to OpenAI succeeded for {self.agent_id}")
+            return content
+
+        except Exception as e:
+            self.logger.error(f"❌ Fallback also failed: {e}")
+            return f"ERROR: Both Ollama and fallback failed"
 
     async def communicate(
         self, to_agent_id: str, message_type: str, payload: Dict[str, Any]
