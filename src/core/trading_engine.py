@@ -88,7 +88,7 @@ class TradingEngine:
         self.logger.info("Stopping Trading Engine...")
 
         # Cancel trading task
-        if hasattr(self, '_trading_task') and not self._trading_task.done():
+        if hasattr(self, "_trading_task") and not self._trading_task.done():
             self._trading_task.cancel()
             try:
                 await self._trading_task
@@ -115,7 +115,7 @@ class TradingEngine:
             try:
                 self._last_heartbeat = datetime.now()
                 self._loop_count += 1
-                
+
                 self.logger.info(f"🔄 Trading loop #{self._loop_count} started")
 
                 # Get market data
@@ -123,8 +123,10 @@ class TradingEngine:
 
                 if market_data is not None:
                     # Generate trading signals
-                    signals = await self.strategy.generate_signals(market_data, self.positions)
-                    
+                    signals = await self.strategy.generate_signals(
+                        market_data, self.positions
+                    )
+
                     self.logger.info(f"📊 Generated {len(signals)} signals")
 
                     # Risk assessment
@@ -144,7 +146,7 @@ class TradingEngine:
                 # Update positions and monitor
                 await self._update_positions()
                 await self._monitor_performance()
-                
+
                 # Phase 0: Update VIX data every 10 loops (~50 minutes)
                 if self._loop_count % 10 == 0:
                     self.logger.info("📊 Updating VIX data...")
@@ -200,7 +202,9 @@ class TradingEngine:
                     pass
 
             exchange_config = self.config_manager.get_exchange_config()
-            exchange_config["initial_capital"] = self.config.get("initial_capital", 10000)
+            exchange_config["initial_capital"] = self.config.get(
+                "initial_capital", 10000
+            )
             self.exchange = ExchangeFactory.create_exchange(
                 exchange_config["name"], exchange_config
             )
@@ -248,7 +252,13 @@ class TradingEngine:
             # Get current price
             price = signal.get("entry_price", 0)
             if not price or price <= 0:
-                price = await self.exchange.get_ticker(symbol)
+                ticker = await self.exchange.get_ticker(symbol)
+                # Handle both dict and float returns
+                if isinstance(ticker, dict):
+                    price = ticker.get("last", 0) or ticker.get("bid", 0) or 0
+                else:
+                    price = ticker or 0
+
             if not price or price <= 0:
                 self.logger.error(f"Cannot get price for {symbol}")
                 return
@@ -329,7 +339,15 @@ class TradingEngine:
 
             for symbol, position in self.positions.items():
                 if position["quantity"] != 0:
-                    current_price = await self.exchange.get_ticker(symbol)
+                    ticker = await self.exchange.get_ticker(symbol)
+                    # Handle both dict and float returns
+                    if isinstance(ticker, dict):
+                        current_price = (
+                            ticker.get("last", 0) or ticker.get("bid", 0) or 0
+                        )
+                    else:
+                        current_price = ticker or 0
+
                     if current_price:
                         market_value = position["quantity"] * current_price
                         total_value += market_value
@@ -358,8 +376,12 @@ class TradingEngine:
             state = {
                 "positions": self.positions,
                 "loop_count": self._loop_count,
-                "last_heartbeat": self._last_heartbeat.isoformat() if self._last_heartbeat else None,
-                "last_update": self.last_update.isoformat() if self.last_update else None,
+                "last_heartbeat": self._last_heartbeat.isoformat()
+                if self._last_heartbeat
+                else None,
+                "last_update": self.last_update.isoformat()
+                if self.last_update
+                else None,
                 "saved_at": datetime.now().isoformat(),
             }
             with open(self._state_file, "w") as f:

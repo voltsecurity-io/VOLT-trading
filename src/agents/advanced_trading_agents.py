@@ -78,6 +78,10 @@ class ForexTradingAgent:
         for pair in self.forex_pairs:
             try:
                 ticker = await self.exchange.get_ticker(pair)
+                # Handle case where pair doesn't exist on exchange
+                if not ticker or (isinstance(ticker, dict) and not ticker.get("last")):
+                    continue
+
                 if isinstance(ticker, dict):
                     self.pair_data[pair] = {
                         "bid": ticker.get("bid", 0),

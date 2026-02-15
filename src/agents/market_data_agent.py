@@ -110,13 +110,19 @@ class MarketDataAgent:
             return {}
 
         try:
-            # Get current ticker price
-            price = await self.exchange.get_ticker(symbol)
+            # Get current ticker price (now returns dict)
+            ticker = await self.exchange.get_ticker(symbol)
+
+            # Handle both dict and float returns for backwards compatibility
+            if isinstance(ticker, dict):
+                price = ticker.get("last", 0) or ticker.get("bid", 0) or 0
+            else:
+                price = ticker or 0
 
             # Get OHLCV data for volume and price stats
             ohlcv = await self.exchange.get_ohlcv(symbol, self.timeframe, limit=24)
 
-            if not price or not ohlcv:
+            if not ohlcv or price <= 0:
                 self.logger.warning(f"⚠️ No data available for {symbol}")
                 return {}
 

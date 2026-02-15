@@ -30,7 +30,9 @@ class SentimentAnalysisAgent:
         self.logger.info("💭 Initializing Sentiment Analysis Agent...")
 
         if self.use_api:
-            self.logger.info("✅ CryptoPanic API configured - will fetch real sentiment")
+            self.logger.info(
+                "✅ CryptoPanic API configured - will fetch real sentiment"
+            )
         else:
             self.logger.info(
                 "⚠️ No sentiment API configured - using neutral sentiment (0.0)"
@@ -84,9 +86,7 @@ class SentimentAnalysisAgent:
                         data = await response.json()
                         self._process_sentiment_data(data)
                     else:
-                        self.logger.warning(
-                            f"CryptoPanic API error: {response.status}"
-                        )
+                        self.logger.warning(f"CryptoPanic API error: {response.status}")
         except ImportError:
             self.logger.warning(
                 "aiohttp not installed - cannot fetch sentiment. Install with: pip install aiohttp"
@@ -131,7 +131,9 @@ class SentimentAnalysisAgent:
             # Update cache
             self.sentiment_cache = {
                 "sentiment_score": weighted_sentiment,
-                "confidence": min(total_votes / 100, 1.0),  # More votes = higher confidence
+                "confidence": min(
+                    total_votes / 100, 1.0
+                ),  # More votes = higher confidence
                 "sources": ["cryptopanic"],
                 "total_posts": len(posts),
                 "positive_votes": total_positive,
@@ -192,7 +194,6 @@ class SentimentAnalysisAgent:
                 else None
             ),
         }
-
 
 
 class ExecutionAgent:
@@ -399,7 +400,7 @@ class MonitoringAgent:
                 self.logger.debug(
                     f"📸 Portfolio snapshot: ${snapshot['portfolio_value']:,.2f}"
                 )
-                
+
                 # Save metrics to disk
                 self._save_metrics()
         except Exception as e:
@@ -432,8 +433,10 @@ class MonitoringAgent:
                     "entry_time": datetime.now().isoformat(),
                     "last_update": datetime.now().isoformat(),
                 }
-            self.logger.info(f"📈 Position opened/added: {amount} {symbol} @ ${entry_price:,.2f}")
-            
+            self.logger.info(
+                f"📈 Position opened/added: {amount} {symbol} @ ${entry_price:,.2f}"
+            )
+
             # Save metrics after position update
             self._save_metrics()
         else:
@@ -468,8 +471,10 @@ class MonitoringAgent:
                     self.logger.info(f"📉 Position closed: {symbol}, P&L: ${pnl:,.2f}")
                 else:
                     self.positions[symbol]["amount"] -= amount
-                    self.logger.info(f"📉 Partial close: {amount} {symbol}, P&L: ${pnl:,.2f}")
-                
+                    self.logger.info(
+                        f"📉 Partial close: {amount} {symbol}, P&L: ${pnl:,.2f}"
+                    )
+
                 # Save metrics after trade
                 self._save_metrics()
 
@@ -495,7 +500,15 @@ class MonitoringAgent:
             unrealized_pnl = 0.0
             for symbol, position in self.positions.items():
                 try:
-                    current_price = await self.exchange.get_ticker(symbol)
+                    ticker = await self.exchange.get_ticker(symbol)
+                    # Handle both dict and float returns
+                    if isinstance(ticker, dict):
+                        current_price = (
+                            ticker.get("last", 0) or ticker.get("bid", 0) or 0
+                        )
+                    else:
+                        current_price = ticker or 0
+
                     if current_price:
                         unrealized_pnl += (
                             current_price - position["entry_price"]
@@ -655,4 +668,3 @@ class MonitoringAgent:
             "open_positions": len(self.positions),
             "total_trades": self.total_trades,
         }
-
