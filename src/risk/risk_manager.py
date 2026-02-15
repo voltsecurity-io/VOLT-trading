@@ -169,13 +169,21 @@ class RiskManager:
             return True
 
         signal_symbol = signal["symbol"]
+        action = signal.get("action", "buy")
 
-        # Simple correlation check based on asset class
+        # Sell orders for an existing position should always pass correlation check
+        if action == "sell":
+            return True
+
+        # For buy orders, check correlation against OTHER held positions
         for pos_symbol, position in positions.items():
             if position.get("quantity", 0) == 0:
                 continue
 
-            # Check if assets are highly correlated
+            # Skip self - correlation check is about exposure to OTHER correlated assets
+            if pos_symbol == signal_symbol:
+                continue
+
             correlation = self._get_correlation(signal_symbol, pos_symbol)
             if correlation > self.correlation_limit:
                 self.logger.warning(
