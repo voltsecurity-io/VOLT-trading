@@ -30,7 +30,7 @@ class BaseExchange(ABC):
         pass
 
     @abstractmethod
-    async def get_ticker(self, symbol: str) -> float:
+    async def get_ticker(self, symbol: str) -> Dict[str, Any]:
         """Get current ticker price"""
         pass
 
@@ -103,15 +103,33 @@ class BinanceExchangeStub(BaseExchange):
 
         return ohlcv_data
 
-    async def get_ticker(self, symbol: str) -> float:
+    async def get_ticker(self, symbol: str) -> Dict[str, Any]:
         """Get current ticker price"""
         # Simulated ticker
         if "BTC" in symbol:
-            return 50000.0
+            return {
+                "last": 50000.0,
+                "bid": 49990.0,
+                "ask": 50010.0,
+                "volume": 10000,
+                "percentage": 0.5,
+            }
         elif "ETH" in symbol:
-            return 3000.0
+            return {
+                "last": 3000.0,
+                "bid": 2995.0,
+                "ask": 3005.0,
+                "volume": 5000,
+                "percentage": -0.3,
+            }
         else:
-            return 100.0
+            return {
+                "last": 100.0,
+                "bid": 99.9,
+                "ask": 100.1,
+                "volume": 1000,
+                "percentage": 0.1,
+            }
 
     async def create_market_buy_order(
         self, symbol: str, amount: float
@@ -120,7 +138,8 @@ class BinanceExchangeStub(BaseExchange):
         # Simulated order
         import time
 
-        price = await self.get_ticker(symbol)
+        ticker = await self.get_ticker(symbol)
+        price = ticker.get("last", 0)
         return {
             "id": f"buy_{int(time.time())}",
             "symbol": symbol,
@@ -138,7 +157,8 @@ class BinanceExchangeStub(BaseExchange):
         # Simulated order
         import time
 
-        price = await self.get_ticker(symbol)
+        ticker = await self.get_ticker(symbol)
+        price = ticker.get("last", 0)
         return {
             "id": f"sell_{int(time.time())}",
             "symbol": symbol,
@@ -198,15 +218,33 @@ class TrocadorExchange(BaseExchange):
 
         return ohlcv_data
 
-    async def get_ticker(self, symbol: str) -> float:
+    async def get_ticker(self, symbol: str) -> Dict[str, Any]:
         """Get current ticker price from Trocador"""
         # Simulated ticker - implement real API
         if "BTC" in symbol:
-            return 48000.0
+            return {
+                "last": 48000.0,
+                "bid": 47990.0,
+                "ask": 48010.0,
+                "volume": 5000,
+                "percentage": -0.2,
+            }
         elif "ETH" in symbol:
-            return 2800.0
+            return {
+                "last": 2800.0,
+                "bid": 2795.0,
+                "ask": 2805.0,
+                "volume": 3000,
+                "percentage": 0.1,
+            }
         else:
-            return 90.0
+            return {
+                "last": 90.0,
+                "bid": 89.9,
+                "ask": 90.1,
+                "volume": 1000,
+                "percentage": 0.0,
+            }
 
     async def create_market_buy_order(
         self, symbol: str, amount: float
@@ -215,7 +253,8 @@ class TrocadorExchange(BaseExchange):
         # Simulated order - implement real API call
         import time
 
-        price = await self.get_ticker(symbol)
+        ticker = await self.get_ticker(symbol)
+        price = ticker.get("last", 0)
         return {
             "id": f"trocador_buy_{int(time.time())}",
             "symbol": symbol,
@@ -234,7 +273,8 @@ class TrocadorExchange(BaseExchange):
         # Simulated order - implement real API call
         import time
 
-        price = await self.get_ticker(symbol)
+        ticker = await self.get_ticker(symbol)
+        price = ticker.get("last", 0)
         return {
             "id": f"trocador_sell_{int(time.time())}",
             "symbol": symbol,
@@ -261,12 +301,15 @@ class ExchangeFactory:
 
         from src.exchanges.binance_exchange import BinanceExchange
         from src.exchanges.dryrun_exchange import DryRunExchange
+        from src.exchanges.bybit_exchange import BybitTestnetExchange
 
         exchanges = {
             "binance": BinanceExchange,
             "binance_stub": BinanceExchangeStub,
             "binance_dryrun": DryRunExchange,
             "trocador": TrocadorExchange,
+            "bybit": BybitTestnetExchange,
+            "bybit_testnet": BybitTestnetExchange,
         }
 
         if exchange_name.lower() not in exchanges:

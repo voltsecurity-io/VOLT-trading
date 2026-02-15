@@ -75,10 +75,10 @@ class DryRunExchange(BaseExchange):
             return []
         return await self._real_exchange.get_ohlcv(symbol, timeframe, limit)
 
-    async def get_ticker(self, symbol: str) -> float:
+    async def get_ticker(self, symbol: str) -> Dict[str, Any]:
         """Fetch real ticker price from Binance"""
         if not self._real_exchange:
-            return 0.0
+            return {"last": 0, "bid": 0, "ask": 0, "volume": 0, "percentage": 0}
         return await self._real_exchange.get_ticker(symbol)
 
     async def create_market_buy_order(
@@ -89,7 +89,8 @@ class DryRunExchange(BaseExchange):
 
         try:
             # Get real current price
-            price = await self.get_ticker(symbol)
+            ticker = await self.get_ticker(symbol)
+            price = ticker.get("last", 0) if isinstance(ticker, dict) else ticker
             if not price or price <= 0:
                 self._failed_orders += 1
                 self.logger.error(f"DryRun: Cannot get price for {symbol}")
@@ -148,7 +149,8 @@ class DryRunExchange(BaseExchange):
         self._total_orders += 1
 
         try:
-            price = await self.get_ticker(symbol)
+            ticker = await self.get_ticker(symbol)
+            price = ticker.get("last", 0) if isinstance(ticker, dict) else ticker
             if not price or price <= 0:
                 self._failed_orders += 1
                 self.logger.error(f"DryRun: Cannot get price for {symbol}")
@@ -209,7 +211,10 @@ class DryRunExchange(BaseExchange):
 
             symbol = f"{currency}/USDT"
             try:
-                current_price = await self.get_ticker(symbol)
+                ticker = await self.get_ticker(symbol)
+                current_price = (
+                    ticker.get("last", 0) if isinstance(ticker, dict) else ticker
+                )
                 if current_price and current_price > 0:
                     positions[symbol] = {
                         "symbol": symbol,
@@ -291,7 +296,9 @@ class DryRunExchange(BaseExchange):
                     state = json.load(f)
                 self._balance = state.get("balance", self._balance)
                 self._order_counter = state.get("order_counter", 0)
-                self.logger.info(f"Loaded previous dryrun state: {state.get('last_saved')}")
+                self.logger.info(
+                    f"Loaded previous dryrun state: {state.get('last_saved')}"
+                )
         except Exception as e:
             self.logger.warning(f"Could not load dryrun state: {e}")
 

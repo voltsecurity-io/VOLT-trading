@@ -24,14 +24,16 @@ class BinanceExchange(BaseExchange):
         """Initialize Binance connection via ccxt"""
         self.logger.info("Initializing Binance exchange...")
 
-        self.client = ccxt_async.binance({
-            "apiKey": self.api_key if self.api_key else None,
-            "secret": self.api_secret if self.api_secret else None,
-            "enableRateLimit": True,
-            "options": {
-                "defaultType": "spot",
-            },
-        })
+        self.client = ccxt_async.binance(
+            {
+                "apiKey": self.api_key if self.api_key else None,
+                "secret": self.api_secret if self.api_secret else None,
+                "enableRateLimit": True,
+                "options": {
+                    "defaultType": "spot",
+                },
+            }
+        )
 
         if self.sandbox:
             self.client.set_sandbox_mode(True)
@@ -55,17 +57,23 @@ class BinanceExchange(BaseExchange):
             self.logger.error(f"Exchange error fetching OHLCV for {symbol}: {e}")
             return []
 
-    async def get_ticker(self, symbol: str) -> float:
+    async def get_ticker(self, symbol: str) -> Dict[str, Any]:
         """Fetch last traded price from Binance"""
         try:
             ticker = await self.client.fetch_ticker(symbol)
-            return float(ticker["last"])
+            return {
+                "last": float(ticker.get("last", 0)),
+                "bid": float(ticker.get("bid", 0)),
+                "ask": float(ticker.get("ask", 0)),
+                "volume": float(ticker.get("volume", 0)),
+                "percentage": float(ticker.get("percentage", 0)),
+            }
         except ccxt_async.NetworkError as e:
             self.logger.error(f"Network error fetching ticker for {symbol}: {e}")
-            return 0.0
+            return {"last": 0, "bid": 0, "ask": 0, "volume": 0, "percentage": 0}
         except ccxt_async.ExchangeError as e:
             self.logger.error(f"Exchange error fetching ticker for {symbol}: {e}")
-            return 0.0
+            return {"last": 0, "bid": 0, "ask": 0, "volume": 0, "percentage": 0}
 
     async def create_market_buy_order(
         self, symbol: str, amount: float

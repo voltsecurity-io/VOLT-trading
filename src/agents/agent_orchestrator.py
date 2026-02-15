@@ -16,6 +16,12 @@ from src.agents.simple_agents import (
     ExecutionAgent,
     MonitoringAgent,
 )
+from src.agents.advanced_trading_agents import (
+    ForexTradingAgent,
+    MacroEconomicAgent,
+    MicroEconomicAgent,
+    GlobalFactorsAgent,
+)
 from src.exchanges.exchange_factory import BaseExchange
 from src.strategies.volt_strategy import VOLTStrategy
 
@@ -45,12 +51,14 @@ class AgentOrchestrator:
         # Initialize individual agents with dependencies
         self.agents = {
             "market_data": MarketDataAgent(self.config_manager, self.exchange),
-            "technical": TechnicalAnalysisAgent(
-                self.config_manager, self.strategy
-            ),
+            "technical": TechnicalAnalysisAgent(self.config_manager, self.strategy),
             "sentiment": SentimentAnalysisAgent(self.config_manager),
             "execution": ExecutionAgent(self.config_manager, self.exchange),
             "monitoring": MonitoringAgent(self.config_manager, self.exchange),
+            "forex": ForexTradingAgent(self.config_manager, self.exchange),
+            "macro": MacroEconomicAgent(self.config_manager),
+            "micro": MicroEconomicAgent(self.config_manager),
+            "global_factors": GlobalFactorsAgent(self.config_manager),
         }
 
         # Initialize each agent
@@ -129,11 +137,29 @@ class AgentOrchestrator:
             technical_signals = await self.agents["technical"].get_signals()
             sentiment_data = await self.agents["sentiment"].get_sentiment()
 
+            forex_data = {}
+            macro_data = {}
+            micro_data = {}
+            global_data = {}
+
+            if "forex" in self.agents:
+                forex_data = await self.agents["forex"].get_all_forex_data()
+            if "macro" in self.agents:
+                macro_data = await self.agents["macro"].get_macro_analysis()
+            if "micro" in self.agents:
+                micro_data = await self.agents["micro"].get_defi_overview()
+            if "global_factors" in self.agents:
+                global_data = await self.agents["global_factors"].get_global_analysis()
+
             coordination_data = {
                 "timestamp": datetime.now().isoformat(),
                 "market_data": market_data,
                 "technical_signals": technical_signals,
                 "sentiment": sentiment_data,
+                "forex": forex_data,
+                "macro": macro_data,
+                "micro": micro_data,
+                "global_factors": global_data,
                 "coordination_score": self._calculate_coordination_score(
                     market_data, technical_signals, sentiment_data
                 ),
