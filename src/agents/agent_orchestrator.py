@@ -22,6 +22,7 @@ from src.agents.advanced_trading_agents import (
     MicroEconomicAgent,
     GlobalFactorsAgent,
 )
+from src.agents.learning_agent import LearningAgent
 from src.exchanges.exchange_factory import BaseExchange
 from src.strategies.volt_strategy import VOLTStrategy
 
@@ -59,6 +60,7 @@ class AgentOrchestrator:
             "macro": MacroEconomicAgent(self.config_manager),
             "micro": MicroEconomicAgent(self.config_manager),
             "global_factors": GlobalFactorsAgent(self.config_manager),
+            "learning": LearningAgent(self.config_manager, self.exchange),
         }
 
         # Initialize each agent

@@ -36,10 +36,7 @@ class ForexTradingAgent:
             "SOL/USDT",
             "XRP/USDT",
             "USDC/USDT",
-            "DAI/USDT",
-            "BUSD/USDT",
             "EUR/USDT",
-            "GBP/USDT",
         ]
 
         self.pair_data = {}

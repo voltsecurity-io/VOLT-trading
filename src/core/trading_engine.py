@@ -264,6 +264,7 @@ class TradingEngine:
                 return
 
             # Convert fraction to base currency amount
+            # For SELL: use existing position, for BUY: use capital
             try:
                 balance = await self.exchange.get_balance()
                 available_capital = float(balance.get("USDT", 0))
@@ -272,8 +273,21 @@ class TradingEngine:
             if available_capital <= 0:
                 available_capital = self.config.get("initial_capital", 10000)
 
-            dollar_amount = available_capital * position_size_fraction
-            position_size = dollar_amount / price
+            if action == "sell":
+                # For sell: get existing position and sell a fraction of it
+                positions = await self.exchange.get_positions()
+                existing_position = positions.get(symbol, {})
+                current_qty = float(existing_position.get("quantity", 0) or 0)
+                if current_qty > 0:
+                    position_size = current_qty * position_size_fraction
+                    dollar_amount = position_size * price
+                else:
+                    self.logger.warning(f"No position to sell for {symbol}")
+                    return
+            else:
+                # For buy: calculate based on available capital
+                dollar_amount = available_capital * position_size_fraction
+                position_size = dollar_amount / price
 
             self.logger.info(
                 f"Executing {action} signal for {symbol} - "

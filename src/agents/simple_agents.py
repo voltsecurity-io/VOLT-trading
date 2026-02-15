@@ -24,7 +24,7 @@ class SentimentAnalysisAgent:
 
         # CryptoPanic API (optional)
         self.api_key = config_manager.get("sentiment.cryptopanic_api_key", None)
-        self.use_api = self.api_key is not None
+        self.use_api = self.api_key is not None and len(str(self.api_key).strip()) > 0
 
     async def initialize(self):
         self.logger.info("💭 Initializing Sentiment Analysis Agent...")
