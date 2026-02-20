@@ -138,12 +138,12 @@ class RiskManager:
             return False
 
         reward_risk_ratio = reward / risk
-        if reward_risk_ratio < 1.5:  # Minimum 1.5:1 ratio
+        if reward_risk_ratio < 1.0:  # LOWERED from 1.5 for aggressive trading
             self.logger.warning(f"⚠️ Poor risk/reward ratio: {reward_risk_ratio:.2f}")
             return False
 
-        # Check signal strength
-        if signal.get("confidence", 0) < 0.6:
+        # Check signal strength - LOWERED for more aggressive trading
+        if signal.get("confidence", 0) < 0.3:
             self.logger.warning("⚠️ Low signal confidence")
             return False
 
@@ -295,8 +295,11 @@ class RiskManager:
 
         # Same cluster correlations
         same_cluster = {
-            "large_l1": 0.80, "mid_l1": 0.75, "defi": 0.70,
-            "meme": 0.60, "payment": 0.50,
+            "large_l1": 0.80,
+            "mid_l1": 0.75,
+            "defi": 0.70,
+            "meme": 0.60,
+            "payment": 0.50,
         }
         if c1 == c2:
             return same_cluster.get(c1, 0.40)

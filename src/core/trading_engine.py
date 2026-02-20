@@ -351,6 +351,11 @@ class TradingEngine:
             total_value = 0.0
             total_pnl = 0.0
 
+            # Get cash balance
+            balance = await self.exchange.get_balance()
+            cash = balance.get("total_usd", 0) if isinstance(balance, dict) else 0
+            total_value = cash  # Start with cash
+
             for symbol, position in self.positions.items():
                 if position["quantity"] != 0:
                     ticker = await self.exchange.get_ticker(symbol)

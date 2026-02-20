@@ -52,7 +52,7 @@ class AnyLLMAdapter:
 
     # Default models for each provider
     DEFAULT_MODELS = {
-        Provider.OLLAMA: "qwen2.5-coder:7b",
+        Provider.OLLAMA: "gemma3:4b",
         Provider.OPENAI: "gpt-4o-mini",
         Provider.ANTHROPIC: "claude-3-haiku-20240307",
         Provider.MISTRAL: "mistral-small-latest",

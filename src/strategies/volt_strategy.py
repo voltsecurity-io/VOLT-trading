@@ -26,7 +26,7 @@ class VOLTStrategy:
         # Strategy parameters
         self.rsi_period = 14
         self.rsi_overbought = 65  # Lowered from 70 - sell earlier for more activity
-        self.rsi_oversold = 35    # Raised from 30 - buy earlier for more activity
+        self.rsi_oversold = 35  # Raised from 30 - buy earlier for more activity
 
         self.macd_fast = 12
         self.macd_slow = 26
@@ -39,21 +39,23 @@ class VOLTStrategy:
         self.max_position_size = self.config.get("max_position_size", 0.10)
         self.stop_loss = self.config.get("stop_loss", 0.05)
         self.take_profit = self.config.get("take_profit", 0.10)
-        
+
         # Phase 0: Volatility collector for dynamic thresholds
         self.volatility_collector = VolatilityCollector()
         self.current_vix = 20.0  # Default
         self.vix_regime = "ELEVATED"  # Matches _classify_regime(20.0)
-        
-        # Phase 1: Ollama multi-agent system (optional)
-        self.use_agents = self.config.get("use_ollama_agents", True)
+
+        # Phase 1: Ollama multi-agent system (DISABLED for aggressive trading)
+        self.use_agents = False  # Disabled to allow more trades
         self.agent_network = None
         if self.use_agents:
             try:
                 self.agent_network = AgentNetwork()
                 self.logger.info("🤖 Ollama multi-agent system enabled")
             except Exception as e:
-                self.logger.warning(f"⚠️  Failed to init agents, continuing without: {e}")
+                self.logger.warning(
+                    f"⚠️  Failed to init agents, continuing without: {e}"
+                )
                 self.use_agents = False
 
     async def initialize(self):
@@ -87,8 +89,10 @@ class VOLTStrategy:
                 if signal:
                     # Phase 1: Validate with agent consensus if enabled
                     if self.use_agents and self.agent_network:
-                        signal = await self._validate_with_agents(signal, df_with_indicators, positions)
-                    
+                        signal = await self._validate_with_agents(
+                            signal, df_with_indicators, positions
+                        )
+
                     if signal:  # Only add if agents didn't reject
                         signals.append(signal)
 
@@ -171,8 +175,8 @@ class VOLTStrategy:
         # BUT ONLY if we have a position to sell!
         sell_score = 0
         sell_total = 5
-        has_position = symbol in positions and positions[symbol].get('quantity', 0) > 0
-        
+        has_position = symbol in positions and positions[symbol].get("quantity", 0) > 0
+
         if has_position:
             if latest["rsi"] > self.rsi_overbought:
                 sell_score += 1.5
@@ -187,11 +191,11 @@ class VOLTStrategy:
             if latest["volume_ratio"] > 1.2:
                 sell_score += 0.5
 
-        # Determine signal - minimum 3.0 score required
+        # Determine signal - VERY LOW THRESHOLD for aggressive trading
         signal_strength = 0
         signal_action = None
 
-        if buy_score >= 3.0 and buy_score > sell_score:
+        if buy_score >= 1.0 and buy_score > sell_score:
             signal_action = "buy"
             signal_strength = min(buy_score / buy_total, 1.0)
 
@@ -201,7 +205,7 @@ class VOLTStrategy:
 
         # Phase 0: Dynamic threshold based on VIX regime
         threshold = self._get_adaptive_threshold()
-        
+
         if signal_action and signal_strength > threshold:
             # Calculate position size using Kelly Criterion
             win_rate = self._estimate_win_rate(symbol, df)
@@ -331,37 +335,38 @@ class VOLTStrategy:
                 reasons.append("Price at upper Bollinger Band")
 
         return "; ".join(reasons) if reasons else "Technical analysis signal"
-    
+
     def _get_adaptive_threshold(self) -> float:
         """
         Phase 0: Dynamic signal strength threshold based on VIX regime
-        
+
         Market Regimes:
         - VIX < 12: LOW (0.40 threshold - be aggressive)
         - VIX 12-20: NORMAL (0.45 threshold - standard)
         - VIX 20-30: ELEVATED (0.55 threshold - be cautious)
         - VIX > 30: PANIC (0.70 threshold - very selective)
-        
+
         Returns:
             float: Threshold for signal_strength
         """
-        
+
         # Use cached VIX or default
         vix = self.current_vix
-        
+
+        # MORE AGGRESSIVE THRESHOLDS
         if vix < 12:
-            threshold = 0.40
+            threshold = 0.25
             regime = "LOW"
         elif vix < 20:
-            threshold = 0.45
+            threshold = 0.30
             regime = "NORMAL"
         elif vix < 30:
-            threshold = 0.55
+            threshold = 0.35
             regime = "ELEVATED"
         else:
-            threshold = 0.70
+            threshold = 0.40
             regime = "PANIC"
-        
+
         # Log if regime changed
         if regime != self.vix_regime:
             self.logger.info(
@@ -369,9 +374,9 @@ class VOLTStrategy:
                 f"(VIX={vix:.1f}, threshold={threshold:.2f})"
             )
             self.vix_regime = regime
-        
+
         return threshold
-    
+
     async def update_vix_data(self):
         """
         Phase 0: Update VIX data for adaptive thresholds
@@ -379,36 +384,33 @@ class VOLTStrategy:
         """
         try:
             vix_data = await self.volatility_collector.get_vix_data()
-            self.current_vix = vix_data['current_vix']
-            self.vix_regime = vix_data['regime']
-            
+            self.current_vix = vix_data["current_vix"]
+            self.vix_regime = vix_data["regime"]
+
             self.logger.debug(
                 f"📊 VIX updated: {self.current_vix:.1f} ({self.vix_regime})"
             )
-            
+
         except Exception as e:
             self.logger.warning(f"⚠️ Failed to update VIX: {e}, using cached value")
-    
+
     async def _validate_with_agents(
-        self, 
-        signal: Dict[str, Any], 
-        df: pd.DataFrame,
-        positions: Dict[str, Any]
+        self, signal: Dict[str, Any], df: pd.DataFrame, positions: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
         """
         Phase 1: Validate signal with multi-agent consensus
-        
+
         Args:
             signal: Trading signal from technical analysis
             df: Market data with indicators
             positions: Current portfolio positions
-            
+
         Returns:
             Enhanced signal with agent consensus, or None if rejected
         """
         try:
             latest = df.iloc[-1]
-            
+
             # Prepare market data for agents
             market_data = {
                 "symbol": signal["symbol"],
@@ -417,66 +419,70 @@ class VOLTStrategy:
                 "macd": float(latest["macd"]),
                 "macd_signal": float(latest["macd_signal"]),
                 "volume_ratio": float(latest["volume_ratio"]),
-                "bb_position": "above" if latest["close"] > latest["bb_upper"] else 
-                              "below" if latest["close"] < latest["bb_lower"] else "middle",
+                "bb_position": "above"
+                if latest["close"] > latest["bb_upper"]
+                else "below"
+                if latest["close"] < latest["bb_lower"]
+                else "middle",
                 "action": signal["action"],
                 "position_size": signal["position_size"],
                 "max_position_size": self.max_position_size,
-                "correlation": 0.5  # Could calculate from multi-symbol data
+                "correlation": 0.5,  # Could calculate from multi-symbol data
             }
-            
+
             # Get agent consensus
             agent_decision = await self.agent_network.propose_trade(
-                market_data=market_data,
-                portfolio=positions
+                market_data=market_data, portfolio=positions
             )
-            
+
             # Extract consensus
             consensus_action = agent_decision.get("decision", "HOLD")
             confidence = agent_decision.get("confidence", 0.0)
             consensus_type = agent_decision.get("consensus_type", "UNKNOWN")
-            
+
             self.logger.info(
                 f"🤖 Agent consensus for {signal['symbol']}: {consensus_type} "
                 f"({consensus_action}, confidence: {confidence:.0%})"
             )
-            
+
             # Decision logic
             if consensus_action == "HOLD" or consensus_type == "REJECTED_BY_RISK":
-                self.logger.info(f"   ❌ Signal rejected by agents: {agent_decision.get('reasoning', 'N/A')}")
+                self.logger.info(
+                    f"   ❌ Signal rejected by agents: {agent_decision.get('reasoning', 'N/A')}"
+                )
                 return None
-            
+
             # If agents suggest opposite action, reject
-            if (signal["action"] == "buy" and consensus_action == "SELL") or \
-               (signal["action"] == "sell" and consensus_action == "BUY"):
+            if (signal["action"] == "buy" and consensus_action == "SELL") or (
+                signal["action"] == "sell" and consensus_action == "BUY"
+            ):
                 self.logger.info(f"   ⚠️ Agent action conflicts with signal, rejecting")
                 return None
-            
+
             # Enhance signal with agent data
             signal["agent_consensus"] = {
                 "decision": consensus_action,
                 "confidence": confidence,
                 "type": consensus_type,
                 "votes": agent_decision.get("agent_votes", {}),
-                "reasoning": agent_decision.get("reasoning", "")
+                "reasoning": agent_decision.get("reasoning", ""),
             }
-            
+
             # Adjust confidence based on agent consensus
             # Blend technical strength with agent confidence (60/40 weight)
             original_confidence = signal["confidence"]
             blended_confidence = (original_confidence * 0.6) + (confidence * 0.4)
             signal["confidence"] = blended_confidence
-            
+
             self.logger.info(
                 f"   ✅ Signal enhanced: confidence {original_confidence:.0%} → {blended_confidence:.0%}"
             )
-            
+
             return signal
-            
+
         except Exception as e:
             self.logger.error(f"⚠️ Agent validation failed: {e}, using signal as-is")
             return signal  # Fallback: use original signal if agents fail
-
 
     async def _load_lstm_model(self):
         """Load LSTM model for price prediction"""
