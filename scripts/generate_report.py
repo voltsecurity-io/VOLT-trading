@@ -7,7 +7,6 @@ Saves trading results and errors for later analysis
 import json
 from datetime import datetime
 from pathlib import Path
-from collections import defaultdict
 
 LOG_FILE = Path(__file__).parent.parent / "logs" / "volt_trading.log"
 REPORT_DIR = Path(__file__).parent.parent / "reports"

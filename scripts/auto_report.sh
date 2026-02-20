@@ -4,6 +4,8 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+mkdir -p "$REPO_ROOT/logs"
+
 LOCKFILE="$REPO_ROOT/.auto_report.lock"
 if command -v flock &>/dev/null; then
     exec 9>"$LOCKFILE"
