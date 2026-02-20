@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-02-20T23:54:40.479997",
+  "log_file_found": false,
+  "summary": {
+    "total_buys": 0,
+    "total_sells": 0,
+    "total_trades": 0,
+    "errors_count": 0,
+    "rejected_signals": 0,
+    "last_portfolio": "Unknown"
+  },
+  "trades": [],
+  "errors": [],
+  "signals_rejected": [],
+  "portfolio_history": []
+}
