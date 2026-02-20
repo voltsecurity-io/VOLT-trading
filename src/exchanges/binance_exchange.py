@@ -133,6 +133,13 @@ class BinanceExchange(BaseExchange):
         balances for configured trading pairs into the position format
         that TradingEngine expects.
         """
+        # In sandbox mode without auth, return empty positions
+        if not self._authenticated:
+            self.logger.warning(
+                "No API keys - returning empty positions (sandbox mode)"
+            )
+            return {}
+
         self._require_auth("get_positions")
         try:
             balance = await self.client.fetch_balance()

@@ -26,6 +26,9 @@ if [ ! -f .env ]; then
     echo "⚠️ Please configure .env with your API keys!"
 fi
 
+# Source environment variables
+source .env 2>/dev/null
+
 # Check required environment variables
 if [ -z "$OLLAMA_API_KEY" ] && [ -z "$OPENAI_API_KEY" ]; then
     echo "⚠️ Warning: No LLM API key configured (OLLAMA_API_KEY or OPENAI_API_KEY)"
@@ -49,25 +52,25 @@ echo "📺 Creating new TMUX session..."
 tmux new-session -d -s "$SESSION_NAME"
 
 # Window 1: Main Trading Engine
-tmux rename-window -t "$SESSION_NAME:1" "Trading"
 tmux send-keys -t "$SESSION_NAME:1" "cd $PROJECT_DIR && source .env 2>/dev/null && python main.py" C-m
+tmux rename-window -t "$SESSION_NAME:1" "Trading"
 
 sleep 2
 
 # Window 2: Webhook Server (for external triggers)
-tmux rename-window -t "$SESSION_NAME:2" "Webhook"
+tmux new-window -t "$SESSION_NAME" -n "Webhook"
 tmux send-keys -t "$SESSION_NAME:2" "cd $PROJECT_DIR && source .env 2>/dev/null && python start_webhook_server.py" C-m
 
 sleep 1
 
 # Window 3: Monitoring Dashboard
-tmux rename-window -t "$SESSION_NAME:3" "Monitor"
+tmux new-window -t "$SESSION_NAME" -n "Monitor"
 tmux send-keys -t "$SESSION_NAME:3" "watch -n 5 'curl -s http://localhost:8080/status | python -m json.tool'" C-m
 
 sleep 1
 
 # Window 4: Logs
-tmux rename-window -t "$SESSION_NAME:4" "Logs"
+tmux new-window -t "$SESSION_NAME" -n "Logs"
 tmux send-keys -t "$SESSION_NAME:4" "tail -f logs/volt_trading.log" C-m
 
 sleep 1
