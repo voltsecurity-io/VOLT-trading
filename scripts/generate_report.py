@@ -19,41 +19,40 @@ def parse_log():
     errors = []
     signals = []
     portfolio_values = []
+    log_file_found = True
 
-    with open(LOG_FILE) as f:
+    if not LOG_FILE.exists():
+        return trades, errors, signals, portfolio_values, False
+
+    with open(LOG_FILE, encoding="utf-8", errors="replace") as f:
         for line in f:
-            # Extract trades
             if "BUY executed:" in line or "SELL executed:" in line:
                 trades.append(line.strip())
 
-            # Extract errors
             if "ERROR" in line:
                 errors.append(line.strip())
 
-            # Extract signals
             if "Signal rejected:" in line:
                 signals.append(line.strip())
 
-            # Extract portfolio
             if "Portfolio:" in line and "$" in line:
                 portfolio_values.append(line.strip())
 
-    return trades, errors, signals, portfolio_values
+    return trades, errors, signals, portfolio_values, True
 
 
 def generate_report():
     """Generate daily report"""
-    trades, errors, signals, portfolio = parse_log()
+    trades, errors, signals, portfolio_values, log_file_found = parse_log()
 
-    # Get last portfolio value
-    last_portfolio = portfolio[-1] if portfolio else "Unknown"
+    last_portfolio = portfolio_values[-1] if portfolio_values else "Unknown"
 
-    # Count trade outcomes
     buys = len([t for t in trades if "BUY" in t])
     sells = len([t for t in trades if "SELL" in t])
 
     report = {
         "generated_at": datetime.now().isoformat(),
+        "log_file_found": log_file_found,
         "summary": {
             "total_buys": buys,
             "total_sells": sells,
@@ -65,22 +64,23 @@ def generate_report():
         "trades": trades,
         "errors": errors,
         "signals_rejected": signals,
-        "portfolio_history": portfolio[-50:],  # Last 50 entries
+        "portfolio_history": portfolio_values[-50:],
     }
 
-    # Save report
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     report_file = REPORT_DIR / f"daily_report_{timestamp}.json"
-    REPORT_DIR.mkdir(exist_ok=True)
 
-    with open(report_file, "w") as f:
+    with open(report_file, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
-    # Also save latest as JSON for easy access
-    with open(REPORT_DIR / "latest_report.json", "w") as f:
+    with open(REPORT_DIR / "latest_report.json", "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 
-    print(f"📊 Report saved to: {report_file}")
+    status = "📊" if log_file_found else "⚠️"
+    print(f"{status} Report saved to: {report_file}")
+    print(f"   Log found: {log_file_found}")
     print(f"   Buys: {buys}, Sells: {sells}")
     print(f"   Errors: {len(errors)}, Rejected: {len(signals)}")
 
