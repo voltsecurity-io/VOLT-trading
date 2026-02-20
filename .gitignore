@@ -21,3 +21,9 @@ reports/*.json
 
 # OS
 .DS_Store
+
+# Large binary files
+volt_learning.db
+models/
+*.llamafile
+*.bin
