@@ -1,0 +1,24 @@
+[
+  {
+    "id": "dryrun_buy_1",
+    "symbol": "ETH/USDT",
+    "side": "buy",
+    "amount": 0.16840211718818648,
+    "price": 1992.3103199999998,
+    "cost": 335.5092759838733,
+    "filled": 0.16840211718818648,
+    "status": "closed",
+    "timestamp": "2026-02-17T19:22:52.277600"
+  },
+  {
+    "id": "dryrun_sell_2",
+    "symbol": "ETH/USDT",
+    "side": "sell",
+    "amount": 0.006774686382963876,
+    "price": 1999.70829,
+    "cost": 13.547396522162979,
+    "filled": 0.006774686382963876,
+    "status": "closed",
+    "timestamp": "2026-02-17T19:43:14.681079"
+  }
+]

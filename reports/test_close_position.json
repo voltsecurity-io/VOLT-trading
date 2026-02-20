@@ -1,0 +1,22 @@
+{
+  "last_updated": "2026-02-16T15:12:22.806311",
+  "uptime_seconds": 0.000358,
+  "positions": {},
+  "total_trades": 1,
+  "winning_trades": 1,
+  "losing_trades": 0,
+  "total_pnl": 100.0,
+  "initial_portfolio_value": 10000.0,
+  "portfolio_history_count": 0,
+  "trade_history": [
+    {
+      "symbol": "BTC/USDT",
+      "entry_price": 50000.0,
+      "exit_price": 51000.0,
+      "amount": 0.1,
+      "pnl": 100.0,
+      "entry_time": "2026-02-16T15:12:22.806089",
+      "exit_time": "2026-02-16T15:12:22.806279"
+    }
+  ]
+}

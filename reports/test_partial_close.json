@@ -1,0 +1,29 @@
+{
+  "last_updated": "2026-02-16T15:12:22.808967",
+  "uptime_seconds": 0.000289,
+  "positions": {
+    "ETH/USDT": {
+      "entry_price": 3000.0,
+      "amount": 0.5,
+      "entry_time": "2026-02-16T15:12:22.808801",
+      "last_update": "2026-02-16T15:12:22.808805"
+    }
+  },
+  "total_trades": 1,
+  "winning_trades": 1,
+  "losing_trades": 0,
+  "total_pnl": 50.0,
+  "initial_portfolio_value": 10000.0,
+  "portfolio_history_count": 0,
+  "trade_history": [
+    {
+      "symbol": "ETH/USDT",
+      "entry_price": 3000.0,
+      "exit_price": 3100.0,
+      "amount": 0.5,
+      "pnl": 50.0,
+      "entry_time": "2026-02-16T15:12:22.808801",
+      "exit_time": "2026-02-16T15:12:22.808939"
+    }
+  ]
+}

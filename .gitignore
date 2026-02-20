@@ -14,7 +14,7 @@ config/trading.json
 
 # Logs and data
 logs/*.log
-reports/*.json
+# reports/*.json  # Include for tracking
 
 # IDE
 .idea/

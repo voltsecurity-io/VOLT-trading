@@ -1,0 +1,40 @@
+{
+  "last_updated": "2026-02-16T15:12:22.812382",
+  "uptime_seconds": 0.000903,
+  "positions": {},
+  "total_trades": 3,
+  "winning_trades": 2,
+  "losing_trades": 1,
+  "total_pnl": 100.0,
+  "initial_portfolio_value": 10000.0,
+  "portfolio_history_count": 0,
+  "trade_history": [
+    {
+      "symbol": "BTC/USDT",
+      "entry_price": 50000.0,
+      "exit_price": 51000.0,
+      "amount": 0.1,
+      "pnl": 100.0,
+      "entry_time": "2026-02-16T15:12:22.811647",
+      "exit_time": "2026-02-16T15:12:22.811812"
+    },
+    {
+      "symbol": "ETH/USDT",
+      "entry_price": 3000.0,
+      "exit_price": 2900.0,
+      "amount": 1.0,
+      "pnl": -100.0,
+      "entry_time": "2026-02-16T15:12:22.811941",
+      "exit_time": "2026-02-16T15:12:22.812091"
+    },
+    {
+      "symbol": "SOL/USDT",
+      "entry_price": 100.0,
+      "exit_price": 110.0,
+      "amount": 10.0,
+      "pnl": 100.0,
+      "entry_time": "2026-02-16T15:12:22.812215",
+      "exit_time": "2026-02-16T15:12:22.812358"
+    }
+  ]
+}

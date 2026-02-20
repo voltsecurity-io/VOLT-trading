@@ -1,0 +1,22 @@
+{
+  "positions": {
+    "ETH/USDT": {
+      "symbol": "ETH/USDT",
+      "quantity": 0.1616274308052226,
+      "entry_price": 1992.3103199999998,
+      "unrealized_pnl": -4.641991533503835,
+      "side": "long"
+    },
+    "LINK/USDT": {
+      "symbol": "LINK/USDT",
+      "quantity": 15.174399222517279,
+      "entry_price": 8.708699999999999,
+      "unrealized_pnl": -0.28376126546105873,
+      "side": "long"
+    }
+  },
+  "loop_count": 330,
+  "last_heartbeat": "2026-02-20T09:28:00.271921",
+  "last_update": "2026-02-20T09:28:04.297870",
+  "saved_at": "2026-02-20T09:28:05.043004"
+}

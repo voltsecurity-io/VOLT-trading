@@ -1,0 +1,10 @@
+{
+  "test_type": "dry_run_12h",
+  "target_hours": 12.0,
+  "initial_capital": 20000.0,
+  "start_time": "2026-02-17T12:05:56.473670",
+  "end_time": "2026-02-18T00:06:37.294311",
+  "status": "completed",
+  "errors": [],
+  "exchange": "binance_dryrun"
+}

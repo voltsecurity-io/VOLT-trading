@@ -1,0 +1,47 @@
+{
+  "report_generated": "2026-02-18T00:06:37.294635",
+  "test_metadata": {
+    "test_type": "dry_run_12h",
+    "target_hours": 12.0,
+    "initial_capital": 20000.0,
+    "start_time": "2026-02-17T12:05:56.473670",
+    "end_time": "2026-02-18T00:06:37.294311",
+    "status": "completed",
+    "errors": [],
+    "exchange": "binance_dryrun"
+  },
+  "duration": {
+    "target_hours": 12.0,
+    "actual_hours": 12.011339159166667,
+    "actual_seconds": 43240.820973,
+    "completed_fully": true
+  },
+  "trading_performance": {
+    "total_loops": 85,
+    "positions_at_end": 1,
+    "consecutive_errors_at_end": 0,
+    "total_trades": 2,
+    "buy_orders": 1,
+    "sell_orders": 1,
+    "total_bought_usd": 335.5092759838733,
+    "total_sold_usd": 13.547396522162979,
+    "symbols_traded": [
+      "ETH/USDT"
+    ],
+    "final_balance": {
+      "USDT": 19678.03812053829,
+      "ETH": 0.1616274308052226
+    },
+    "total_orders": 2,
+    "failed_orders": 0,
+    "final_usdt": 19678.03812053829,
+    "usdt_pnl": -321.96187946170903
+  },
+  "system_health": {
+    "total_errors": 0,
+    "status": "completed"
+  },
+  "recommendations": [
+    "Test completed successfully - system is stable"
+  ]
+}
