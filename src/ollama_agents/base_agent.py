@@ -86,8 +86,17 @@ class BaseAgent(ABC):
 
         self.weight = initial_weight
 
-        # Ollama connection - fully local
-        self.ollama_url = "http://localhost:11434"
+        # Ollama connection - support both local and cloud
+        import os
+
+        self.ollama_url = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+
+        # For Ollama Cloud, we need to add /api/chat path handling
+        if "cloud.ollama.ai" in self.ollama_url:
+            self.using_cloud = True
+            self.logger.info(f"☁️ Using Ollama Cloud: {self.ollama_url}")
+        else:
+            self.using_cloud = False
 
         # Performance tracking
         self.metrics = {

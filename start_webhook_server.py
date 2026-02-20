@@ -6,6 +6,7 @@ Starts a webhook listener to receive TradingView alerts and execute trades on By
 
 import asyncio
 import json
+from datetime import datetime
 from aiohttp import web
 
 from src.exchanges.bybit_exchange import BybitTestnetExchange, TradingViewWebhookHandler
@@ -43,9 +44,24 @@ async def create_app(config_manager: ConfigManager):
             {
                 "status": "running",
                 "exchange": "bybit_testnet",
-                "balance": balance,
+                "portfolio": {
+                    "equity": balance.get("total_balance", 0),
+                    "cash": balance.get("available_balance", 0),
+                    "positions": len(positions),
+                },
                 "positions": positions,
                 "recent_orders": orders[-10:] if orders else [],
+                "trading": {
+                    "trades_today": len(
+                        [
+                            o
+                            for o in orders
+                            if o.get("created_at", "").startswith(
+                                datetime.now().strftime("%Y-%m-%d")
+                            )
+                        ]
+                    ),
+                },
             }
         )
 

@@ -1,0 +1,25 @@
+[Unit]
+Description=VOLT AI Trading System
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=omarchy
+WorkingDirectory=%h/VOLT-trading
+Environment="PATH=/usr/bin:/bin:%h/.local/bin"
+EnvironmentFile=%h/VOLT-trading/.env
+
+# Start TMUX session
+ExecStart=/usr/bin/tmux new-session -d -s volt "%h/VOLT-trading/scripts/start.sh"
+
+# Restart on failure
+Restart=on-failure
+RestartSec=30
+
+# Logging
+StandardOutput=append:%h/VOLT-trading/logs/systemd.log
+StandardError=append:%h/VOLT-trading/logs/systemd_error.log
+
+[Install]
+WantedBy=default.target
