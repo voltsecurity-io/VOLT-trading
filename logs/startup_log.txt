@@ -1,0 +1,433 @@
+2026-02-16 17:34:08,390 - DryRunTest - INFO - ============================================================
+2026-02-16 17:34:08,390 - DryRunTest - INFO - VOLT Trading - 12 Hour Dry Run Test
+2026-02-16 17:34:08,390 - DryRunTest - INFO - ============================================================
+2026-02-16 17:34:08,390 - DryRunTest - INFO - Duration: 12.0 hours
+2026-02-16 17:34:08,390 - DryRunTest - INFO - Initial capital: $20,000.00
+2026-02-16 17:34:08,390 - DryRunTest - INFO - Exchange: DryRun (real Binance market data)
+2026-02-16 17:34:08,390 - DryRunTest - INFO - Pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT', 'BNB/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT']
+2026-02-16 17:34:08,390 - DryRunTest - INFO - Timeframe: 5m
+2026-02-16 17:34:08,390 - DryRunTest - INFO - ============================================================
+2026-02-16 17:34:08,392 - src.core.trading_engine - INFO - Initializing Trading Engine...
+2026-02-16 17:34:08,850 - DryRunExchange - INFO - Initializing DryRun Exchange (paper trading)...
+2026-02-16 17:34:08,850 - src.exchanges.exchange_factory - INFO - Initializing Binance exchange...
+2026-02-16 17:34:10,491 - src.exchanges.exchange_factory - INFO - Binance exchange ready — LIVE, public-only (no API keys)
+2026-02-16 17:34:10,492 - DryRunExchange - INFO - DryRun Exchange ready - Starting balance: {"USDT": 20000.0}
+2026-02-16 17:34:10,492 - src.strategies.volt_strategy - INFO - 🧠 Initializing VOLT Strategy...
+2026-02-16 17:34:10,492 - src.strategies.volt_strategy - INFO - 🧠 Loading LSTM model...
+2026-02-16 17:34:10,492 - src.strategies.volt_strategy - INFO - 💭 Loading sentiment model...
+2026-02-16 17:34:11,196 - src.strategies.volt_strategy - INFO - 📊 VIX: 21.40 (ELEVATED)
+2026-02-16 17:34:11,196 - src.strategies.volt_strategy - INFO - ✅ VOLT Strategy initialized
+2026-02-16 17:34:11,196 - src.risk.risk_manager - INFO - 🛡️ Initializing Risk Manager...
+2026-02-16 17:34:11,196 - src.risk.risk_manager - INFO - ✅ Risk Manager initialized
+2026-02-16 17:34:11,196 - src.core.trading_engine - INFO - Trading Engine initialized successfully
+2026-02-16 17:34:11,196 - src.agents.agent_orchestrator - INFO - 🤖 Initializing Agent Orchestrator...
+2026-02-16 17:34:11,197 - src.agents.market_data_agent - INFO - 📊 Initializing Market Data Agent...
+2026-02-16 17:34:11,197 - src.agents.market_data_agent - INFO - 📈 Tracking 8 symbols on 5m timeframe
+2026-02-16 17:34:11,197 - src.agents.agent_orchestrator - INFO - ✅ Market_Data Agent initialized
+2026-02-16 17:34:11,198 - src.agents.technical_agent - INFO - 📈 Initializing Technical Analysis Agent...
+2026-02-16 17:34:11,198 - src.agents.technical_agent - INFO - 📊 Technical analysis configured
+2026-02-16 17:34:11,198 - src.agents.agent_orchestrator - INFO - ✅ Technical Agent initialized
+2026-02-16 17:34:11,198 - src.agents.simple_agents - INFO - 💭 Initializing Sentiment Analysis Agent...
+2026-02-16 17:34:11,198 - src.agents.simple_agents - INFO - ⚠️ No sentiment API configured - using neutral sentiment (0.0)
+2026-02-16 17:34:11,198 - src.agents.simple_agents - INFO -    To enable: Add 'sentiment.cryptopanic_api_key' to config
+2026-02-16 17:34:11,198 - src.agents.agent_orchestrator - INFO - ✅ Sentiment Agent initialized
+2026-02-16 17:34:11,198 - src.agents.simple_agents - INFO - ⚡ Initializing Execution Agent...
+2026-02-16 17:34:11,198 - src.agents.simple_agents - INFO - ✅ Exchange connection available for order execution
+2026-02-16 17:34:11,198 - src.agents.agent_orchestrator - INFO - ✅ Execution Agent initialized
+2026-02-16 17:34:11,198 - src.agents.simple_agents - INFO - 🔍 Initializing Monitoring Agent...
+2026-02-16 17:34:11,198 - src.agents.simple_agents - INFO - 💰 Initial portfolio value: $20,000.00
+2026-02-16 17:34:11,198 - src.agents.agent_orchestrator - INFO - ✅ Monitoring Agent initialized
+2026-02-16 17:34:11,198 - src.agents.advanced_trading_agents - INFO - 💱 Initializing Forex Trading Agent...
+2026-02-16 17:34:11,198 - src.agents.advanced_trading_agents - INFO - 📊 Tracking 7 Forex pairs
+2026-02-16 17:34:11,199 - src.agents.agent_orchestrator - INFO - ✅ Forex Agent initialized
+2026-02-16 17:34:11,200 - src.agents.advanced_trading_agents - INFO - 🏛️ Initializing Macro Economic Agent...
+2026-02-16 17:34:11,200 - src.agents.advanced_trading_agents - INFO - ⚠️ No FRED API - using cached/static data
+2026-02-16 17:34:11,200 - src.agents.agent_orchestrator - INFO - ✅ Macro Agent initialized
+2026-02-16 17:34:11,200 - src.agents.advanced_trading_agents - INFO - 🏢 Initializing Micro Economic Agent...
+2026-02-16 17:34:11,200 - src.agents.agent_orchestrator - INFO - ✅ Micro Agent initialized
+2026-02-16 17:34:11,200 - src.agents.advanced_trading_agents - INFO - 🌍 Initializing Global Factors Agent...
+2026-02-16 17:34:11,200 - src.agents.agent_orchestrator - INFO - ✅ Global_Factors Agent initialized
+2026-02-16 17:34:11,200 - src.agents.learning_agent - INFO - 🧠 Initializing Learning Agent...
+2026-02-16 17:34:11,201 - src.agents.learning_agent - INFO - 📊 7-day performance: {'total_pnl': 0, 'total_trades': 0, 'avg_pnl': 0, 'win_rate': 0, 'period_days': 7}
+2026-02-16 17:34:11,211 - src.agents.learning_agent - INFO - ✅ Learning Agent initialized
+2026-02-16 17:34:11,212 - src.agents.agent_orchestrator - INFO - ✅ Learning Agent initialized
+2026-02-16 17:34:11,212 - src.agents.agent_orchestrator - INFO - ✅ Agent Orchestrator initialized
+2026-02-16 17:34:11,212 - DryRunTest - INFO - All components initialized for dry run test
+2026-02-16 17:34:11,212 - DryRunTest - INFO - Test started at: 2026-02-16 17:34:11
+2026-02-16 17:34:11,212 - DryRunTest - INFO - Test ends at:    2026-02-17 05:34:11
+2026-02-16 17:34:11,212 - src.core.trading_engine - INFO - Starting Trading Engine...
+2026-02-16 17:34:11,212 - src.core.trading_engine - INFO - ✅ Trading loop started as background task
+2026-02-16 17:34:11,213 - src.core.trading_engine - INFO - Starting main trading loop...
+2026-02-16 17:34:11,214 - src.core.trading_engine - INFO - 🔄 Trading loop #1 started
+2026-02-16 17:34:11,214 - src.agents.agent_orchestrator - INFO - 🚀 Starting Agent Orchestrator...
+2026-02-16 17:34:11,214 - src.agents.market_data_agent - INFO - 🚀 Starting Market Data Agent...
+2026-02-16 17:34:11,214 - src.agents.technical_agent - INFO - 🚀 Starting Technical Analysis Agent...
+2026-02-16 17:34:11,214 - src.agents.simple_agents - INFO - 🚀 Sentiment Analysis Agent started
+2026-02-16 17:34:11,214 - src.agents.simple_agents - INFO - 🚀 Execution Agent started
+2026-02-16 17:34:11,214 - src.agents.simple_agents - INFO - 🚀 Monitoring Agent started
+2026-02-16 17:34:11,214 - src.agents.advanced_trading_agents - INFO - 🚀 Forex Trading Agent started
+2026-02-16 17:34:11,214 - src.agents.advanced_trading_agents - INFO - 🚀 Macro Economic Agent started
+2026-02-16 17:34:11,215 - src.agents.advanced_trading_agents - INFO - 🚀 Micro Economic Agent started
+2026-02-16 17:34:11,215 - src.agents.advanced_trading_agents - INFO - 🚀 Global Factors Agent started
+2026-02-16 17:34:11,215 - src.agents.learning_agent - INFO - 🚀 Learning Agent started
+2026-02-16 17:34:11,215 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 17:34:21,988 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 17:34:21,988 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 17:39:11,275 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 17:39:21,990 - src.core.trading_engine - INFO - 🔄 Trading loop #2 started
+2026-02-16 17:39:26,684 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 17:39:26,684 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 17:44:11,276 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 17:44:26,685 - src.core.trading_engine - INFO - 🔄 Trading loop #3 started
+2026-02-16 17:44:31,452 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 17:44:31,452 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 17:49:11,303 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 17:49:31,454 - src.core.trading_engine - INFO - 🔄 Trading loop #4 started
+2026-02-16 17:49:35,985 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 17:49:35,985 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 17:54:11,304 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 17:54:35,986 - src.core.trading_engine - INFO - 🔄 Trading loop #5 started
+2026-02-16 17:54:40,360 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 17:54:40,360 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 17:59:11,364 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 17:59:40,361 - src.core.trading_engine - INFO - 🔄 Trading loop #6 started
+2026-02-16 17:59:45,031 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 17:59:45,032 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:04:11,274 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 18:04:11,366 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:04:12,123 - DryRunTest - INFO - [STATUS] 0.5h elapsed, 11.5h remaining, loops: 6, errors: 0
+2026-02-16 18:04:45,033 - src.core.trading_engine - INFO - 🔄 Trading loop #7 started
+2026-02-16 18:04:49,726 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:04:49,726 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:09:11,425 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:09:49,727 - src.core.trading_engine - INFO - 🔄 Trading loop #8 started
+2026-02-16 18:09:54,586 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:09:54,586 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:14:11,426 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:14:54,588 - src.core.trading_engine - INFO - 🔄 Trading loop #9 started
+2026-02-16 18:14:59,252 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:14:59,252 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:19:11,487 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:19:59,254 - src.core.trading_engine - INFO - 🔄 Trading loop #10 started
+2026-02-16 18:20:04,729 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:20:04,729 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:20:04,729 - src.core.trading_engine - INFO - 📊 Updating VIX data...
+2026-02-16 18:20:04,905 - src.collectors.volatility_collector - INFO - 📊 VIX fetched: 21.20
+2026-02-16 18:24:11,489 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:25:04,907 - src.core.trading_engine - INFO - 🔄 Trading loop #11 started
+2026-02-16 18:25:09,325 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:25:09,325 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:29:11,548 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:30:09,326 - src.core.trading_engine - INFO - 🔄 Trading loop #12 started
+2026-02-16 18:30:13,758 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:30:13,758 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:30:13,758 - src.core.trading_engine - INFO - 💓 Heartbeat: loop #12, positions: 0, errors: 0
+2026-02-16 18:34:11,275 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 18:34:11,550 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:34:13,100 - DryRunTest - INFO - [STATUS] 1.0h elapsed, 11.0h remaining, loops: 12, errors: 0
+2026-02-16 18:35:13,759 - src.core.trading_engine - INFO - 🔄 Trading loop #13 started
+2026-02-16 18:35:18,414 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:35:18,414 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:39:11,610 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:40:18,415 - src.core.trading_engine - INFO - 🔄 Trading loop #14 started
+2026-02-16 18:40:22,853 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:40:22,854 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:44:11,612 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:45:22,854 - src.core.trading_engine - INFO - 🔄 Trading loop #15 started
+2026-02-16 18:45:27,345 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:45:27,345 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:49:11,671 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:50:27,345 - src.core.trading_engine - INFO - 🔄 Trading loop #16 started
+2026-02-16 18:50:32,413 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:50:32,413 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:54:11,672 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 18:55:32,414 - src.core.trading_engine - INFO - 🔄 Trading loop #17 started
+2026-02-16 18:55:36,855 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 18:55:36,855 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 18:59:11,727 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:00:36,864 - src.core.trading_engine - INFO - 🔄 Trading loop #18 started
+2026-02-16 19:00:41,535 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:00:41,535 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:04:11,332 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 19:04:11,729 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:04:13,927 - DryRunTest - INFO - [STATUS] 1.5h elapsed, 10.5h remaining, loops: 18, errors: 0
+2026-02-16 19:05:41,552 - src.core.trading_engine - INFO - 🔄 Trading loop #19 started
+2026-02-16 19:05:46,093 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:05:46,094 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:09:11,788 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:10:46,113 - src.core.trading_engine - INFO - 🔄 Trading loop #20 started
+2026-02-16 19:10:51,388 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:10:51,388 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:10:51,388 - src.core.trading_engine - INFO - 📊 Updating VIX data...
+2026-02-16 19:10:51,542 - src.collectors.volatility_collector - INFO - 📊 VIX fetched: 21.20
+2026-02-16 19:14:11,789 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:15:51,564 - src.core.trading_engine - INFO - 🔄 Trading loop #21 started
+2026-02-16 19:15:56,892 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:15:56,892 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:19:11,847 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:20:56,893 - src.core.trading_engine - INFO - 🔄 Trading loop #22 started
+2026-02-16 19:21:01,377 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:21:01,377 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:24:11,849 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:26:01,379 - src.core.trading_engine - INFO - 🔄 Trading loop #23 started
+2026-02-16 19:26:07,104 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:26:07,104 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:29:11,908 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:31:07,104 - src.core.trading_engine - INFO - 🔄 Trading loop #24 started
+2026-02-16 19:31:11,482 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:31:11,482 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:31:11,483 - src.core.trading_engine - INFO - 💓 Heartbeat: loop #24, positions: 0, errors: 0
+2026-02-16 19:34:11,333 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 19:34:11,909 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:34:14,501 - DryRunTest - INFO - [STATUS] 2.0h elapsed, 10.0h remaining, loops: 24, errors: 0
+2026-02-16 19:36:11,484 - src.core.trading_engine - INFO - 🔄 Trading loop #25 started
+2026-02-16 19:36:16,027 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:36:16,027 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:39:11,967 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:41:16,028 - src.core.trading_engine - INFO - 🔄 Trading loop #26 started
+2026-02-16 19:41:20,644 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:41:20,644 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:44:11,968 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:46:20,645 - src.core.trading_engine - INFO - 🔄 Trading loop #27 started
+2026-02-16 19:46:25,121 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:46:25,121 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:49:11,974 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:51:25,131 - src.core.trading_engine - INFO - 🔄 Trading loop #28 started
+2026-02-16 19:51:30,054 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:51:30,054 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:54:11,975 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 19:56:30,055 - src.core.trading_engine - INFO - 🔄 Trading loop #29 started
+2026-02-16 19:56:34,734 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 19:56:34,734 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 19:59:12,033 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:01:34,735 - src.core.trading_engine - INFO - 🔄 Trading loop #30 started
+2026-02-16 20:01:39,551 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:01:39,551 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:01:39,551 - src.core.trading_engine - INFO - 📊 Updating VIX data...
+2026-02-16 20:01:39,724 - src.collectors.volatility_collector - INFO - 📊 VIX fetched: 21.20
+2026-02-16 20:04:11,369 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 20:04:12,035 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:04:15,100 - DryRunTest - INFO - [STATUS] 2.5h elapsed, 9.5h remaining, loops: 30, errors: 0
+2026-02-16 20:06:39,726 - src.core.trading_engine - INFO - 🔄 Trading loop #31 started
+2026-02-16 20:06:44,232 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:06:44,232 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:09:12,093 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:11:44,234 - src.core.trading_engine - INFO - 🔄 Trading loop #32 started
+2026-02-16 20:11:49,400 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:11:49,400 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:14:12,095 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:16:49,435 - src.core.trading_engine - INFO - 🔄 Trading loop #33 started
+2026-02-16 20:16:54,553 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:16:54,553 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:19:12,152 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:21:54,554 - src.core.trading_engine - INFO - 🔄 Trading loop #34 started
+2026-02-16 20:21:58,928 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:21:58,928 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:24:12,154 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:26:58,929 - src.core.trading_engine - INFO - 🔄 Trading loop #35 started
+2026-02-16 20:27:03,729 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:27:03,729 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:29:12,211 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:32:03,729 - src.core.trading_engine - INFO - 🔄 Trading loop #36 started
+2026-02-16 20:32:08,788 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:32:08,788 - src.core.trading_engine - INFO - Portfolio: equity=$20000.00 | cash=$20000.00 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:32:08,788 - src.core.trading_engine - INFO - 💓 Heartbeat: loop #36, positions: 0, errors: 0
+2026-02-16 20:34:11,370 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 20:34:12,212 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:34:15,831 - DryRunTest - INFO - [STATUS] 3.0h elapsed, 9.0h remaining, loops: 36, errors: 0
+2026-02-16 20:37:08,789 - src.core.trading_engine - INFO - 🔄 Trading loop #37 started
+2026-02-16 20:37:13,431 - src.core.trading_engine - INFO - 📊 Generated 1 signals
+2026-02-16 20:37:13,431 - src.risk.risk_manager - INFO - 📊 Volatility adjustment for SOL/USDT: Vol=0.055, Factor=0.948, Size=0.095
+2026-02-16 20:37:13,431 - src.risk.risk_manager - INFO - ✅ Risk approved for SOL/USDT - Size: 0.005, Risk Score: 0.10
+2026-02-16 20:37:13,431 - src.core.trading_engine - INFO - Executing buy signal for SOL/USDT - Fraction: 0.005, Amount: 1.176194 (100.00 USD), Strength: 0.57
+2026-02-16 20:37:13,736 - DryRunExchange - INFO - DryRun BUY: 1.176194 SOL @ $85.11 (cost: $100.10) | USDT remaining: $19899.90
+2026-02-16 20:37:13,736 - src.core.trading_engine - INFO - Order executed: buy 1.1761938367442955 SOL/USDT @ 85.10501999999998
+2026-02-16 20:37:14,350 - src.core.trading_engine - INFO - Portfolio: equity=$19999.90 | cash=$19899.90 | positions=1 ($100.00) | unrealized_pnl=$-0.10 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:39:12,270 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:42:14,351 - src.core.trading_engine - INFO - 🔄 Trading loop #38 started
+2026-02-16 20:42:18,977 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:42:19,483 - src.core.trading_engine - INFO - Portfolio: equity=$19999.69 | cash=$19899.90 | positions=1 ($99.79) | unrealized_pnl=$-0.31 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:44:12,272 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:47:19,484 - src.core.trading_engine - INFO - 🔄 Trading loop #39 started
+2026-02-16 20:47:24,968 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:47:25,582 - src.core.trading_engine - INFO - Portfolio: equity=$19999.55 | cash=$19899.90 | positions=1 ($99.65) | unrealized_pnl=$-0.45 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:49:12,305 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:52:25,583 - src.core.trading_engine - INFO - 🔄 Trading loop #40 started
+2026-02-16 20:52:30,030 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:52:30,637 - src.core.trading_engine - INFO - Portfolio: equity=$19999.61 | cash=$19899.90 | positions=1 ($99.71) | unrealized_pnl=$-0.39 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:52:30,637 - src.core.trading_engine - INFO - 📊 Updating VIX data...
+2026-02-16 20:52:30,773 - src.collectors.volatility_collector - INFO - 📊 VIX fetched: 21.20
+2026-02-16 20:54:12,308 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 20:57:30,775 - src.core.trading_engine - INFO - 🔄 Trading loop #41 started
+2026-02-16 20:57:35,319 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 20:57:35,886 - src.core.trading_engine - INFO - Portfolio: equity=$19999.62 | cash=$19899.90 | positions=1 ($99.72) | unrealized_pnl=$-0.38 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 20:59:12,365 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:02:35,887 - src.core.trading_engine - INFO - 🔄 Trading loop #42 started
+2026-02-16 21:02:40,817 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:02:41,464 - src.core.trading_engine - INFO - Portfolio: equity=$19999.49 | cash=$19899.90 | positions=1 ($99.59) | unrealized_pnl=$-0.51 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:04:11,377 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 21:04:12,367 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:04:16,532 - DryRunTest - INFO - [STATUS] 3.5h elapsed, 8.5h remaining, loops: 42, errors: 0
+2026-02-16 21:07:41,466 - src.core.trading_engine - INFO - 🔄 Trading loop #43 started
+2026-02-16 21:07:46,128 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:07:46,722 - src.core.trading_engine - INFO - Portfolio: equity=$19999.37 | cash=$19899.90 | positions=1 ($99.47) | unrealized_pnl=$-0.63 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:09:12,423 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:12:46,723 - src.core.trading_engine - INFO - 🔄 Trading loop #44 started
+2026-02-16 21:12:51,313 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:12:51,980 - src.core.trading_engine - INFO - Portfolio: equity=$19999.36 | cash=$19899.90 | positions=1 ($99.46) | unrealized_pnl=$-0.64 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:14:12,424 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:17:51,981 - src.core.trading_engine - INFO - 🔄 Trading loop #45 started
+2026-02-16 21:17:58,419 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:17:59,491 - src.core.trading_engine - INFO - Portfolio: equity=$19999.57 | cash=$19899.90 | positions=1 ($99.67) | unrealized_pnl=$-0.43 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:19:12,466 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:22:59,492 - src.core.trading_engine - INFO - 🔄 Trading loop #46 started
+2026-02-16 21:23:04,752 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:23:05,774 - src.core.trading_engine - INFO - Portfolio: equity=$19999.46 | cash=$19899.90 | positions=1 ($99.56) | unrealized_pnl=$-0.54 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:24:12,468 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:28:05,776 - src.core.trading_engine - INFO - 🔄 Trading loop #47 started
+2026-02-16 21:28:10,377 - src.core.trading_engine - INFO - 📊 Generated 2 signals
+2026-02-16 21:28:10,377 - src.risk.risk_manager - INFO - 📊 Volatility adjustment for SOL/USDT: Vol=0.054, Factor=0.949, Size=0.095
+2026-02-16 21:28:10,377 - src.risk.risk_manager - INFO - ✅ Risk approved for SOL/USDT - Size: 0.005, Risk Score: 0.12
+2026-02-16 21:28:10,377 - src.core.trading_engine - INFO - Skipping SOL/USDT buy - already have position
+2026-02-16 21:28:10,377 - src.risk.risk_manager - INFO - 📊 Volatility adjustment for AVAX/USDT: Vol=0.046, Factor=0.956, Size=0.096
+2026-02-16 21:28:10,377 - src.risk.risk_manager - INFO - ✅ Risk approved for AVAX/USDT - Size: 0.009, Risk Score: 0.13
+2026-02-16 21:28:10,377 - src.core.trading_engine - INFO - Executing buy signal for AVAX/USDT - Fraction: 0.009, Amount: 18.535407 (169.78 USD), Strength: 0.57
+2026-02-16 21:28:10,723 - DryRunExchange - INFO - DryRun BUY: 18.535407 AVAX @ $9.17 (cost: $169.95) | USDT remaining: $19729.95
+2026-02-16 21:28:10,723 - src.core.trading_engine - INFO - Order executed: buy 18.53540675303733 AVAX/USDT @ 9.16916
+2026-02-16 21:28:11,951 - src.core.trading_engine - INFO - Portfolio: equity=$19999.97 | cash=$19729.95 | positions=2 ($270.03) | unrealized_pnl=$-0.03 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:29:12,493 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:33:11,955 - src.core.trading_engine - INFO - 🔄 Trading loop #48 started
+2026-02-16 21:33:17,315 - src.core.trading_engine - INFO - 📊 Generated 1 signals
+2026-02-16 21:33:17,316 - src.risk.risk_manager - WARNING - ⚠️ High correlation (0.82) between ADA/USDT and SOL/USDT
+2026-02-16 21:33:17,316 - src.core.trading_engine - INFO - Signal rejected: ADA/USDT buy - High correlation with existing positions
+2026-02-16 21:33:18,540 - src.core.trading_engine - INFO - Portfolio: equity=$20000.09 | cash=$19729.95 | positions=2 ($270.14) | unrealized_pnl=$0.09 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:33:18,540 - src.core.trading_engine - INFO - 💓 Heartbeat: loop #48, positions: 2, errors: 0
+2026-02-16 21:34:11,378 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 21:34:12,495 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:34:17,230 - DryRunTest - INFO - [STATUS] 4.0h elapsed, 8.0h remaining, loops: 48, errors: 0
+2026-02-16 21:38:18,541 - src.core.trading_engine - INFO - 🔄 Trading loop #49 started
+2026-02-16 21:38:22,890 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:38:24,105 - src.core.trading_engine - INFO - Portfolio: equity=$20000.12 | cash=$19729.95 | positions=2 ($270.18) | unrealized_pnl=$0.12 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:39:12,497 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:43:24,111 - src.core.trading_engine - INFO - 🔄 Trading loop #50 started
+2026-02-16 21:43:28,852 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:43:30,080 - src.core.trading_engine - INFO - Portfolio: equity=$20000.45 | cash=$19729.95 | positions=2 ($270.51) | unrealized_pnl=$0.45 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:43:30,081 - src.core.trading_engine - INFO - 📊 Updating VIX data...
+2026-02-16 21:43:30,248 - src.collectors.volatility_collector - INFO - 📊 VIX fetched: 21.20
+2026-02-16 21:44:12,499 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:48:30,254 - src.core.trading_engine - INFO - 🔄 Trading loop #51 started
+2026-02-16 21:48:34,592 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:48:35,748 - src.core.trading_engine - INFO - Portfolio: equity=$20000.22 | cash=$19729.95 | positions=2 ($270.27) | unrealized_pnl=$0.22 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:49:12,522 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:53:35,756 - src.core.trading_engine - INFO - 🔄 Trading loop #52 started
+2026-02-16 21:53:40,307 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:53:41,517 - src.core.trading_engine - INFO - Portfolio: equity=$20001.06 | cash=$19729.95 | positions=2 ($271.11) | unrealized_pnl=$1.06 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:54:12,523 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 21:58:41,525 - src.core.trading_engine - INFO - 🔄 Trading loop #53 started
+2026-02-16 21:58:46,936 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 21:58:48,208 - src.core.trading_engine - INFO - Portfolio: equity=$20000.91 | cash=$19729.95 | positions=2 ($270.96) | unrealized_pnl=$0.91 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 21:59:12,536 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:03:48,214 - src.core.trading_engine - INFO - 🔄 Trading loop #54 started
+2026-02-16 22:03:53,312 - src.exchanges.exchange_factory - ERROR - Network error fetching OHLCV for BNB/USDT: binance GET https://api.binance.com/api/v3/klines?interval=5m&limit=24&symbol=BNBUSDT
+2026-02-16 22:03:53,312 - src.agents.market_data_agent - WARNING - ⚠️ No data available for BNB/USDT
+2026-02-16 22:04:04,308 - src.exchanges.exchange_factory - ERROR - Network error fetching OHLCV for SOL/USDT: binance GET https://api.binance.com/api/v3/klines?interval=5m&limit=100&symbol=SOLUSDT
+2026-02-16 22:04:11,383 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 22:04:12,538 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:04:17,939 - DryRunTest - INFO - [STATUS] 4.5h elapsed, 7.5h remaining, loops: 54, errors: 0
+2026-02-16 22:04:36,110 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:04:37,755 - src.exchanges.exchange_factory - ERROR - Network error fetching ticker for SOL/USDT: binance GET https://api.binance.com/api/v3/ticker/24hr?symbol=SOLUSDT
+2026-02-16 22:04:39,296 - src.exchanges.exchange_factory - ERROR - Network error fetching ticker for AVAX/USDT: binance GET https://api.binance.com/api/v3/ticker/24hr?symbol=AVAXUSDT
+2026-02-16 22:04:39,296 - src.core.trading_engine - INFO - Portfolio: equity=$19729.95 | cash=$19729.95 | positions=0 ($0.00) | unrealized_pnl=$0.00 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:09:12,542 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:09:39,299 - src.core.trading_engine - INFO - 🔄 Trading loop #55 started
+2026-02-16 22:09:44,362 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:09:46,437 - src.core.trading_engine - INFO - Portfolio: equity=$20000.80 | cash=$19729.95 | positions=2 ($270.86) | unrealized_pnl=$0.80 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:14:12,543 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:14:46,442 - src.core.trading_engine - INFO - 🔄 Trading loop #56 started
+2026-02-16 22:14:51,106 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:14:52,308 - src.core.trading_engine - INFO - Portfolio: equity=$20001.22 | cash=$19729.95 | positions=2 ($271.28) | unrealized_pnl=$1.22 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:19:12,599 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:19:52,314 - src.core.trading_engine - INFO - 🔄 Trading loop #57 started
+2026-02-16 22:19:56,705 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:19:57,869 - src.core.trading_engine - INFO - Portfolio: equity=$20001.50 | cash=$19729.95 | positions=2 ($271.55) | unrealized_pnl=$1.50 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:24:12,601 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:24:57,873 - src.core.trading_engine - INFO - 🔄 Trading loop #58 started
+2026-02-16 22:25:02,674 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:25:04,354 - src.core.trading_engine - INFO - Portfolio: equity=$20001.58 | cash=$19729.95 | positions=2 ($271.64) | unrealized_pnl=$1.58 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:29:12,627 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:30:04,363 - src.core.trading_engine - INFO - 🔄 Trading loop #59 started
+2026-02-16 22:30:09,372 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:30:10,533 - src.core.trading_engine - INFO - Portfolio: equity=$20001.64 | cash=$19729.95 | positions=2 ($271.69) | unrealized_pnl=$1.64 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:34:11,384 - src.agents.learning_agent - INFO - 📈 Daily performance: 0 trades, $0.00 P&L, 0.0% win rate
+2026-02-16 22:34:12,629 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:34:18,671 - DryRunTest - INFO - [STATUS] 5.0h elapsed, 7.0h remaining, loops: 59, errors: 0
+2026-02-16 22:35:10,543 - src.core.trading_engine - INFO - 🔄 Trading loop #60 started
+2026-02-16 22:35:15,068 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:35:16,200 - src.core.trading_engine - INFO - Portfolio: equity=$20001.44 | cash=$19729.95 | positions=2 ($271.50) | unrealized_pnl=$1.44 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:35:16,200 - src.core.trading_engine - INFO - 📊 Updating VIX data...
+2026-02-16 22:35:16,365 - src.collectors.volatility_collector - INFO - 📊 VIX fetched: 21.20
+2026-02-16 22:35:16,365 - src.core.trading_engine - INFO - 💓 Heartbeat: loop #60, positions: 2, errors: 0
+2026-02-16 22:39:12,653 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:40:16,375 - src.core.trading_engine - INFO - 🔄 Trading loop #61 started
+2026-02-16 22:40:20,694 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:40:21,968 - src.core.trading_engine - INFO - Portfolio: equity=$20001.73 | cash=$19729.95 | positions=2 ($271.79) | unrealized_pnl=$1.73 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:44:12,655 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:45:21,970 - src.core.trading_engine - INFO - 🔄 Trading loop #62 started
+2026-02-16 22:45:26,441 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:45:27,634 - src.core.trading_engine - INFO - Portfolio: equity=$20001.66 | cash=$19729.95 | positions=2 ($271.72) | unrealized_pnl=$1.66 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:49:12,709 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:50:27,635 - src.core.trading_engine - INFO - 🔄 Trading loop #63 started
+2026-02-16 22:50:32,555 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:50:33,816 - src.core.trading_engine - INFO - Portfolio: equity=$20001.94 | cash=$19729.95 | positions=2 ($272.00) | unrealized_pnl=$1.94 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:54:12,712 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 22:55:33,828 - src.core.trading_engine - INFO - 🔄 Trading loop #64 started
+2026-02-16 22:55:39,136 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 22:55:40,407 - src.core.trading_engine - INFO - Portfolio: equity=$20001.71 | cash=$19729.95 | positions=2 ($271.76) | unrealized_pnl=$1.71 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 22:59:12,766 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 23:00:40,419 - src.core.trading_engine - INFO - 🔄 Trading loop #65 started
+2026-02-16 23:00:45,161 - src.core.trading_engine - INFO - 📊 Generated 0 signals
+2026-02-16 23:00:46,334 - src.core.trading_engine - INFO - Portfolio: equity=$20002.91 | cash=$19729.95 | positions=2 ($272.96) | unrealized_pnl=$2.91 | daily_trades=0 | daily_realized=$0.00
+2026-02-16 23:01:13,669 - DryRunTest - INFO - Received stop signal - finishing test
+2026-02-16 23:01:13,669 - DryRunTest - INFO - Shutting down test components...
+2026-02-16 23:01:13,669 - src.core.trading_engine - INFO - Stopping Trading Engine...
+2026-02-16 23:01:13,670 - DryRunExchange - INFO - Trade log saved: 2 trades
+2026-02-16 23:01:13,920 - src.exchanges.exchange_factory - INFO - Binance exchange connection closed
+2026-02-16 23:01:13,921 - DryRunExchange - INFO - DryRun Exchange closed. Total orders: 2, Failed: 0
+2026-02-16 23:01:13,921 - src.core.trading_engine - INFO - Trading Engine stopped
+2026-02-16 23:01:13,921 - src.agents.agent_orchestrator - INFO - 🛑 Stopping Agent Orchestrator...
+2026-02-16 23:01:13,921 - src.agents.market_data_agent - INFO - 🛑 Market Data Agent stopped
+2026-02-16 23:01:13,921 - src.agents.agent_orchestrator - INFO - 👋 Market_Data Agent stopped
+2026-02-16 23:01:13,921 - src.agents.technical_agent - INFO - 🛑 Technical Analysis Agent stopped
+2026-02-16 23:01:13,921 - src.agents.agent_orchestrator - INFO - 👋 Technical Agent stopped
+2026-02-16 23:01:13,921 - src.agents.simple_agents - INFO - 🛑 Sentiment Analysis Agent stopped
+2026-02-16 23:01:13,921 - src.agents.agent_orchestrator - INFO - 👋 Sentiment Agent stopped
+2026-02-16 23:01:13,921 - src.agents.simple_agents - INFO - 🛑 Execution Agent stopped
+2026-02-16 23:01:13,921 - src.agents.agent_orchestrator - INFO - 👋 Execution Agent stopped
+2026-02-16 23:01:13,921 - src.agents.simple_agents - INFO - 🛑 Monitoring Agent stopped
+2026-02-16 23:01:13,921 - src.agents.simple_agents - INFO - 📊 Metrics saved to reports/monitoring_metrics.json
+2026-02-16 23:01:13,921 - src.agents.agent_orchestrator - INFO - 👋 Monitoring Agent stopped
+2026-02-16 23:01:13,921 - src.agents.advanced_trading_agents - INFO - 🛑 Forex Trading Agent stopped
+2026-02-16 23:01:13,921 - src.agents.agent_orchestrator - INFO - 👋 Forex Agent stopped
+2026-02-16 23:01:13,921 - src.agents.advanced_trading_agents - INFO - 🛑 Macro Economic Agent stopped
+2026-02-16 23:01:13,921 - src.agents.agent_orchestrator - INFO - 👋 Macro Agent stopped
+2026-02-16 23:01:13,922 - src.agents.advanced_trading_agents - INFO - 🛑 Micro Economic Agent stopped
+2026-02-16 23:01:13,922 - src.agents.agent_orchestrator - INFO - 👋 Micro Agent stopped
+2026-02-16 23:01:13,922 - src.agents.advanced_trading_agents - INFO - 🛑 Global Factors Agent stopped
+2026-02-16 23:01:13,922 - src.agents.agent_orchestrator - INFO - 👋 Global_Factors Agent stopped
+2026-02-16 23:01:13,922 - src.agents.learning_agent - INFO - 🛑 Learning Agent stopped
+2026-02-16 23:01:13,922 - src.agents.agent_orchestrator - INFO - 👋 Learning Agent stopped
+2026-02-16 23:01:13,922 - src.agents.agent_orchestrator - INFO - 🔄 Agent Orchestrator stopped
+2026-02-16 23:01:13,922 - DryRunTest - INFO - ============================================================
+2026-02-16 23:01:13,922 - DryRunTest - INFO - GENERATING TEST REPORT
+2026-02-16 23:01:13,922 - DryRunTest - INFO - ============================================================
+2026-02-16 23:01:13,922 - DryRunTest - INFO - ============================================================
+2026-02-16 23:01:13,922 - DryRunTest - INFO - TEST REPORT SUMMARY
+2026-02-16 23:01:13,922 - DryRunTest - INFO - ============================================================
+2026-02-16 23:01:13,922 - DryRunTest - INFO - Status: stopped_by_user
+2026-02-16 23:01:13,922 - DryRunTest - INFO - Duration: 5.45 hours
+2026-02-16 23:01:13,922 - DryRunTest - INFO - Trading loops: 65
+2026-02-16 23:01:13,922 - DryRunTest - INFO - Total trades: 2
+2026-02-16 23:01:13,922 - DryRunTest - INFO - Total errors: 0
+2026-02-16 23:01:13,922 - DryRunTest - INFO - Final balance: {"USDT": 19729.94588981632, "SOL": 1.1761938367442955, "AVAX": 18.53540675303733}
+2026-02-16 23:01:13,923 - DryRunTest - INFO - Full report saved to: reports/dryrun_12h_report.json
+2026-02-16 23:01:13,923 - DryRunTest - INFO - ============================================================

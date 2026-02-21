@@ -199,7 +199,8 @@ class VOLTStrategy:
             signal_action = "buy"
             signal_strength = min(buy_score / buy_total, 1.0)
 
-        elif sell_score >= 3.0 and sell_score > buy_score and has_position:
+        # SELL logic - more aggressive
+        elif sell_score >= 1.5 and sell_score > buy_score and has_position:
             signal_action = "sell"
             signal_strength = min(sell_score / sell_total, 1.0)
 

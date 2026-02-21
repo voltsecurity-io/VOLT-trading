@@ -1,0 +1,79 @@
+{
+  "EUR/USDT": {
+    "bid": 1.1785,
+    "ask": 1.1786,
+    "last": 1.1783,
+    "volume": 0.0,
+    "timestamp": "2026-02-20T20:58:57.629974"
+  },
+  "GBP/USDT": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:57.630126"
+  },
+  "USD/JPY": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:29.367718"
+  },
+  "AUD/USD": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:29.367743"
+  },
+  "USD/CHF": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:29.367763"
+  },
+  "USD/CAD": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:29.367780"
+  },
+  "NZD/USD": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:29.367797"
+  },
+  "EUR/GBP": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:29.367813"
+  },
+  "EUR/JPY": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:29.367828"
+  },
+  "GBP/JPY": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:29.367843"
+  },
+  "AUD/USDT": {
+    "bid": 0,
+    "ask": 0,
+    "last": 0,
+    "volume": 0,
+    "timestamp": "2026-02-20T20:58:57.630182"
+  }
+}

@@ -126,17 +126,21 @@ class BybitTestnetExchange(BaseExchange):
                 avg_price = (
                     existing["avg_price"] * existing["amount"] + price * amount
                 ) / total
-                self.positions[symbol] = {
-                    "amount": total,
-                    "avg_price": avg_price,
-                    "side": "buy",
-                }
-            else:
-                self.positions[symbol] = {
-                    "amount": amount,
-                    "avg_price": price,
-                    "side": "buy",
-                }
+            self.positions[symbol] = {
+                "symbol": symbol,
+                "quantity": total,
+                "amount": total,
+                "avg_price": avg_price,
+                "side": "buy",
+            }
+        else:
+            self.positions[symbol] = {
+                "symbol": symbol,
+                "quantity": amount,
+                "amount": amount,
+                "avg_price": price,
+                "side": "buy",
+            }
 
             self.orders.append(order)
             self.logger.info(f"✅ BUY executed: {amount} {symbol} @ ${price:,.2f}")
