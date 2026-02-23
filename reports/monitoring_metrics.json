@@ -1,12 +1,12 @@
 {
-  "last_updated": "2026-02-21T07:51:29.856293",
-  "uptime_seconds": 32102.220654,
+  "last_updated": "2026-02-23T11:56:01.700173",
+  "uptime_seconds": 7200.517764,
   "positions": {},
   "total_trades": 0,
   "winning_trades": 0,
   "losing_trades": 0,
   "total_pnl": 0.0,
   "initial_portfolio_value": 100000.0,
-  "portfolio_history_count": 107,
+  "portfolio_history_count": 24,
   "trade_history": []
 }
